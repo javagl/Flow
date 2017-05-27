@@ -29,6 +29,7 @@ package de.javagl.flow.plugin;
 import java.util.List;
 
 import de.javagl.category.CategoriesBuilder;
+import de.javagl.category.Category;
 import de.javagl.flow.module.creation.ModuleCreator;
 
 /**
@@ -52,8 +53,10 @@ public class ModuleCreatorServices
             ModuleCreatorService.createModuleCreatorSources();
         for (ModuleCreatorSource moduleCreatorSource : moduleCreatorSources)
         {
-            categoriesBuilder.mergeRecursively(
-                moduleCreatorSource.getCategory());
+            Category<ModuleCreator> category = 
+                moduleCreatorSource.getCategory();
+            categoriesBuilder.get(category.getName())
+                .mergeRecursively(category);
         }
     }
     

@@ -265,7 +265,7 @@ final class FlowEditorApplicationPanel extends JPanel
             {
                 ModuleCreator moduleCreator = (ModuleCreator)userObject;
                 ModuleInfo moduleInfo = moduleCreator.getModuleInfo();
-                System.out.println("Selected module: "+moduleInfo);
+                //System.out.println("Selected module: "+moduleInfo);
                 selectedModuleDescriptionPanel.setModuleInfo(moduleInfo);
             }
             else
@@ -314,10 +314,12 @@ final class FlowEditorApplicationPanel extends JPanel
         Category<ModuleCreator> rootModuleCreatorCategory =
             flowEditorContext.getRootModuleCreatorCategory();
         mainModuleCreatorTree.setCategory(rootModuleCreatorCategory);
+        mainModuleCreatorTree.expandAll(1);
 
         Category<ModuleCreator> builtInModuleCreatorCategory =
             flowEditorContext.getBuiltInModuleCreatorCategory();
         builtInModuleCreatorTree.setCategory(builtInModuleCreatorCategory);
+        mainModuleCreatorTree.expandAll(1);
         
         
     }
