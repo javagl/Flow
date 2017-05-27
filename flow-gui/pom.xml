@@ -1,0 +1,85 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>de.javagl</groupId>
+        <artifactId>flow-parent</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>flow-gui</artifactId>
+
+    <repositories>
+        <repository>
+            <id>localMavenRepository</id>
+            <url>file://${basedir}/../localMavenRepository</url>
+        </repository>
+    </repositories>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>de.javagl</groupId>
+            <artifactId>flow-core</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>de.javagl</groupId>
+            <artifactId>flow-module-creation</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>de.javagl</groupId>
+            <artifactId>flow-workspace</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>de.javagl</groupId>
+            <artifactId>flow-repository</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>de.javagl</groupId>
+            <artifactId>selection</artifactId>
+            <version>0.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>de.javagl</groupId>
+            <artifactId>category</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>de.javagl</groupId>
+            <artifactId>types</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>de.javagl</groupId>
+            <artifactId>flow-io</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>de.javagl</groupId>
+            <artifactId>common</artifactId>
+            <version>0.0.2-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>de.javagl</groupId>
+            <artifactId>common-ui</artifactId>
+            <version>0.0.2</version>
+        </dependency>
+    </dependencies>
+</project>
