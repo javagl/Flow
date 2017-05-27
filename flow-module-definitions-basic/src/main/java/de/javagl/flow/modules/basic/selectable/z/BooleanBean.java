@@ -26,7 +26,7 @@ public final class BooleanBean
     /**
      * Default constructor
      */
-    protected BooleanBean()
+    public BooleanBean()
     {
         propertyChangeSupport = new PropertyChangeSupport(this);
     }

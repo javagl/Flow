@@ -26,7 +26,7 @@ public final class StringBean
     /**
      * Default constructor
      */
-    protected StringBean()
+    public StringBean()
     {
         this.propertyChangeSupport = new PropertyChangeSupport(this);
     }
