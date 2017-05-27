@@ -54,10 +54,13 @@ class XmlFlow
      * 
      * @param node The node
      * @param idToModule The mapping from IDs to {@link Module} instances
+     * @param moduleCreatorRepository The {@link Repository} of 
+     * {@link ModuleCreator} instances
      * @return The object
      * @throws XmlException If the object can not be parsed
      */
-    static MutableFlow parse(Node node, Map<String, Module> idToModule)
+    static MutableFlow parse(Node node, Map<String, Module> idToModule,
+        Repository<ModuleInfo, ModuleCreator> moduleCreatorRepository)
     {
         XmlUtils.verifyNodeName(node, "flow");
 
@@ -71,7 +74,7 @@ class XmlFlow
             if (childName.equalsIgnoreCase("modules"))
             {
                 Map<String, Module> localIdToModule =
-                    XmlModule.parseModules(child);
+                    XmlModule.parseModules(child, moduleCreatorRepository);
                 idToModule.putAll(localIdToModule);
             }
         }

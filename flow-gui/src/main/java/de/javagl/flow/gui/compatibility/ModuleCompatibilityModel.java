@@ -78,11 +78,6 @@ public final class ModuleCompatibilityModel
     private TypeContext typeContext;
     
     /**
-     * The {@link Repository} of {@link ModuleCreator} objects
-     */
-    private final Repository<ModuleInfo, ModuleCreator> moduleCreatorRepository;
-    
-    /**
      * The set of all {@link ModuleCreator} instances 
      */
     private final Set<ModuleCreator> moduleCreators;
@@ -116,10 +111,8 @@ public final class ModuleCompatibilityModel
      * @param moduleCreators The set of all {@link ModuleCreator}
      */
     public ModuleCompatibilityModel(
-        Repository<ModuleInfo, ModuleCreator> moduleCreatorRepository,
         Collection<? extends ModuleCreator> moduleCreators)
     {
-        this.moduleCreatorRepository = moduleCreatorRepository;
         this.moduleCreators = 
             new LinkedHashSet<ModuleCreator>(moduleCreators);
         
@@ -142,17 +135,9 @@ public final class ModuleCompatibilityModel
         this.typeContext = Objects.requireNonNull(
             typeContext, "The typeContext may not be null");
         
-        Set<ModuleCreator> oldMethodModuleCreators = 
-            Categories.getAllElements(targetMethodsCategory);
-        moduleCreatorRepository.remove(oldMethodModuleCreators);
-        
         updateSourcesCategory(modules);
         updateTargetsCategory(modules);
         updateTargetMethodsCategory(modules);
-        
-        Set<ModuleCreator> newMethodModuleCreators = 
-            Categories.getAllElements(targetMethodsCategory);
-        moduleCreatorRepository.add(newMethodModuleCreators);
     }
 
     

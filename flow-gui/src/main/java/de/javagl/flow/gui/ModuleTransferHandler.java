@@ -27,6 +27,7 @@
 package de.javagl.flow.gui;
 
 import java.awt.datatransfer.Transferable;
+import java.util.Collections;
 import java.util.logging.Logger;
 
 import javax.swing.JComponent;
@@ -37,7 +38,9 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 import de.javagl.flow.module.Module;
+import de.javagl.flow.module.ModuleInfo;
 import de.javagl.flow.module.creation.ModuleCreator;
+import de.javagl.flow.repository.Repository;
 
 /**
  * A TransferHandler for {@link Module} objects. An instance of this
@@ -60,6 +63,23 @@ final class ModuleTransferHandler extends TransferHandler
      * Serial UID
      */
     private static final long serialVersionUID = -6404485349852032912L;
+    
+    /**
+     * The {@link Repository} of {@link ModuleCreator} instances
+     */
+    private final Repository<ModuleInfo, ModuleCreator> moduleCreatorRepository;
+    
+    /**
+     * Creates a new instance
+     * 
+     * @param moduleCreatorRepository The {@link Repository} or
+     * {@link ModuleCreator} instances 
+     */
+    ModuleTransferHandler(
+        Repository<ModuleInfo, ModuleCreator> moduleCreatorRepository)
+    {
+        this.moduleCreatorRepository = moduleCreatorRepository;
+    }
 
     @Override
     public Transferable createTransferable(JComponent component)
@@ -89,6 +109,7 @@ final class ModuleTransferHandler extends TransferHandler
         if (userObject instanceof ModuleCreator)
         {
             ModuleCreator moduleCreator = (ModuleCreator)userObject;
+            moduleCreatorRepository.add(Collections.singleton(moduleCreator));
             Module module = moduleCreator.createModule();
             return new TransferableModule(module);
         }

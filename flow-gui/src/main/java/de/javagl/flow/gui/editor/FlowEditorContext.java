@@ -101,11 +101,9 @@ public final class FlowEditorContext
         this.moduleCreatorRepository.add(builtInModuleCreators);
 
         this.mainModuleCompatibilityModel =
-            new ModuleCompatibilityModel(
-                moduleCreatorRepository, mainModuleCreators);
+            new ModuleCompatibilityModel(mainModuleCreators);
         this.builtInModuleCompatibilityModel =
-            new ModuleCompatibilityModel(
-                moduleCreatorRepository, builtInModuleCreators);
+            new ModuleCompatibilityModel(builtInModuleCreators);
     }
     
     /**

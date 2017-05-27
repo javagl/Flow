@@ -58,10 +58,13 @@ public class XmlFlowWorkspace
      * Parse a {@link MutableFlowWorkspace} from the given XML node
      * 
      * @param node The node
+     * @param moduleCreatorRepository The {@link Repository} of
+     * {@link ModuleCreator} instances
      * @return The {@link MutableFlowWorkspace}
      * @throws XmlException If the object can not be parsed
      */
-    public static MutableFlowWorkspace parse(Node node)
+    public static MutableFlowWorkspace parse(Node node,
+        Repository<ModuleInfo, ModuleCreator> moduleCreatorRepository)
     {
         XmlUtils.verifyNodeName(node, "flowWorkspace");
 
@@ -77,7 +80,8 @@ public class XmlFlowWorkspace
             String childName = child.getNodeName();
             if (childName.equalsIgnoreCase("flow"))
             {
-                flow = XmlFlow.parse(child, idToModule);
+                flow = XmlFlow.parse(child, idToModule, 
+                    moduleCreatorRepository);
             }
         }
 

@@ -26,6 +26,7 @@
  */
 package de.javagl.flow.io.xml;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -37,6 +38,7 @@ import org.w3c.dom.NodeList;
 
 import de.javagl.flow.module.Module;
 import de.javagl.flow.module.ModuleInfo;
+import de.javagl.flow.module.ModuleInfos;
 import de.javagl.flow.module.creation.ModuleCreator;
 import de.javagl.flow.module.creation.ModuleCreatorInstantiator;
 import de.javagl.flow.repository.Repository;
@@ -56,10 +58,13 @@ class XmlModule
      * Parse the object from the given node.
      * 
      * @param node The node
+     * @param moduleCreatorRepository The {@link Repository} of 
+     * {@link ModuleCreator} instances
      * @return The object
      * @throws XmlException If the object can not be parsed
      */
-    static Map<String, Module> parseModules(Node node)
+    static Map<String, Module> parseModules(Node node,
+        Repository<ModuleInfo, ModuleCreator> moduleCreatorRepository)
     {
         XmlUtils.verifyNodeName(node, "modules");
         
@@ -71,7 +76,8 @@ class XmlModule
             String childName = child.getNodeName();
             if (childName.equalsIgnoreCase("moduleInstance"))
             {
-                parseModuleInstance(child, idToModule);
+                parseModuleInstance(child, idToModule,
+                    moduleCreatorRepository);
             }
         }
         return idToModule;
@@ -82,10 +88,13 @@ class XmlModule
      * 
      * @param node The node
      * @param idToModule The mapping from IDs to {@link Module} instances
+     * @param moduleCreatorRepository The {@link Repository} of 
+     * {@link ModuleCreator} instances
      * @throws XmlException If the object can not be parsed
      */
     private static void parseModuleInstance(
-        Node node, Map<String, Module> idToModule)
+        Node node, Map<String, Module> idToModule,
+        Repository<ModuleInfo, ModuleCreator> moduleCreatorRepository)
     {
         XmlUtils.verifyNodeName(node, "moduleInstance");
         
@@ -102,7 +111,7 @@ class XmlModule
             String childName = child.getNodeName();
             if (childName.equalsIgnoreCase("module"))
             {
-                Module module = parseModule(child);
+                Module module = parseModule(child, moduleCreatorRepository);
                 idToModule.put(id, module);
             }
         }
@@ -112,10 +121,13 @@ class XmlModule
      * Parse the object from the given node.
      * 
      * @param node The node
+     * @param moduleCreatorRepository The {@link Repository} of 
+     * {@link ModuleCreator} instances
      * @return The object
      * @throws XmlException If the object can not be parsed
      */
-    private static Module parseModule(Node node)
+    private static Module parseModule(Node node,
+        Repository<ModuleInfo, ModuleCreator> moduleCreatorRepository)
     {
         XmlUtils.verifyNodeName(node, "module");
         
@@ -133,6 +145,7 @@ class XmlModule
             ModuleCreator moduleCreator = 
                 ModuleCreatorInstantiator.createFromInstantiationString(
                     instantiationString.trim());
+            moduleCreatorRepository.add(Collections.singleton(moduleCreator));
             module = moduleCreator.createModule();
         }
         catch (IllegalArgumentException e)
@@ -241,9 +254,20 @@ class XmlModule
             ModuleInfo moduleInfo = module.getModuleInfo();
             ModuleCreator moduleCreator = 
                 moduleCreatorRepository.get(moduleInfo);
-            moduleNode.appendChild(XmlUtils.createTextNode(
-                "instantiationString", 
-                moduleCreator.getInstantiationString()));
+            if (moduleCreator == null)
+            {
+                logger.severe("No ModuleCreator found in repository "
+                    + "for the following ModuleInfo:");
+                logger.severe(ModuleInfos.createModuleInfoString(
+                    module.getModuleInfo()));
+                logger.severe("Output file may be invalid");
+            }
+            else
+            {
+                moduleNode.appendChild(XmlUtils.createTextNode(
+                    "instantiationString", 
+                    moduleCreator.getInstantiationString()));
+            }
             
             Object configuration = module.getConfiguration();
             if (configuration != null)

@@ -558,7 +558,10 @@ final class FlowEditorApplicationPanel extends JPanel
     private void initTree(CategoryTree<ModuleCreator> categoryTree)
     {
         JTree tree = categoryTree.getTree();
-        tree.setTransferHandler(new ModuleTransferHandler());
+        Repository<ModuleInfo, ModuleCreator> moduleCreatorRepository =
+            flowEditorContext.getModuleCreatorRepository();
+        tree.setTransferHandler(
+            new ModuleTransferHandler(moduleCreatorRepository));
         tree.setDragEnabled(true);
         tree.addTreeSelectionListener(
             commonModuleCreatorTreeSelectionListener);

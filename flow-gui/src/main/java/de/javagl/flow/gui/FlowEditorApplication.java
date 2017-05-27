@@ -463,7 +463,12 @@ public final class FlowEditorApplication
         {
             inputStream = new FileInputStream(file);
             Node node = XmlUtils.read(inputStream);
-            flowWorkspace = XmlFlowWorkspace.parse(node);
+            
+            Repository<ModuleInfo, ModuleCreator> moduleCreatorRepository = 
+                flowEditorContext.getModuleCreatorRepository();
+            
+            flowWorkspace = XmlFlowWorkspace.parse(
+                node, moduleCreatorRepository);
         }
         catch (FileNotFoundException e)
         {
