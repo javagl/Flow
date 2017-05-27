@@ -28,7 +28,7 @@ public final class EvaluationModuleCreator
         "Evaluation", "Creates a Weka classifier Evaluation")
         .addInput(Classifier.class, "Classifier", "The input classifier")
         .addInput(Instances.class, "Instances", "The input instances")
-        .addOutput(Evaluation.class, "Evaluation", "The Evluation")
+        .addOutput(Evaluation.class, "Evaluation", "The Evaluation")
         .build();
 
     /**
