@@ -25,7 +25,7 @@ public final class EvaluationModuleCreator
      * The {@link ModuleInfo}
      */
     private static final ModuleInfo MODULE_INFO = ModuleInfos.create(
-        "Evaulation", "Creates a Weka classifier Evaluation")
+        "Evaluation", "Creates a Weka classifier Evaluation")
         .addInput(Classifier.class, "Classifier", "The input classifier")
         .addInput(Instances.class, "Instances", "The input instances")
         .addOutput(Evaluation.class, "Evaluation", "The Evluation")
