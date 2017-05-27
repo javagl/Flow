@@ -35,7 +35,6 @@ import de.javagl.flow.gui.compatibility.ModuleCompatibilityModel;
 import de.javagl.flow.module.Module;
 import de.javagl.flow.module.ModuleInfo;
 import de.javagl.flow.module.creation.ModuleCreator;
-import de.javagl.flow.repository.LoggingRepositoryListener;
 import de.javagl.flow.repository.Repositories;
 import de.javagl.flow.repository.Repository;
 
@@ -90,8 +89,8 @@ public final class FlowEditorContext
         this.moduleCreatorRepository = 
             Repositories.create(moduleCreator -> moduleCreator.getModuleInfo());
         
-        this.moduleCreatorRepository.addRepositoryListener(
-            LoggingRepositoryListener.create());
+        //this.moduleCreatorRepository.addRepositoryListener(
+        //    LoggingRepositoryListener.create());
         
         Set<ModuleCreator> mainModuleCreators = 
             Categories.getAllElements(mainModuleCreatorCategory);
