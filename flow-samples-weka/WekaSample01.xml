@@ -1,0 +1,131 @@
+<flowWorkspace>
+    <flow>
+        <modules>
+            <moduleInstance id="module_Load_instances_0">
+                <module>
+                    <instantiationString>de.javagl.flow.ModuleCreatorInstantiator.instantiateByModuleCreatorClassName(de.javagl.flow.samples.weka.module.definitions.InstancesLoaderModuleCreator)</instantiationString>
+                </module>
+            </moduleInstance>
+            <moduleInstance id="module_Randomize_1">
+                <module>
+                    <instantiationString>de.javagl.flow.ModuleCreatorInstantiator.instantiateByModuleCreatorClassName(de.javagl.flow.samples.weka.module.definitions.RandomizeFilterModuleCreator)</instantiationString>
+                </module>
+            </moduleInstance>
+            <moduleInstance id="module_J48_2">
+                <module>
+                    <instantiationString>de.javagl.flow.ModuleCreatorInstantiator.instantiateByModuleCreatorClassName(de.javagl.flow.samples.weka.module.definitions.J48ClassifierModuleCreator)</instantiationString>
+                </module>
+            </moduleInstance>
+            <moduleInstance id="module_Evaulation_3">
+                <module>
+                    <instantiationString>de.javagl.flow.ModuleCreatorInstantiator.instantiateByModuleCreatorClassName(de.javagl.flow.samples.weka.module.definitions.EvaluationModuleCreator)</instantiationString>
+                </module>
+            </moduleInstance>
+            <moduleInstance id="module_Call_Evaluation_toMatrixString___4">
+                <module>
+                    <instantiationString>de.javagl.flow.ModuleCreatorInstantiator.instantiateByMethodString(public java.lang.String weka.classifiers.Evaluation.toMatrixString() throws java.lang.Exception, null)</instantiationString>
+                </module>
+            </moduleInstance>
+            <moduleInstance id="module_GUI_Console_5">
+                <module>
+                    <instantiationString>de.javagl.flow.ModuleCreatorInstantiator.instantiateByModuleCreatorClassName(de.javagl.flow.modules.basic.GuiConsoleModuleCreator)</instantiationString>
+                </module>
+            </moduleInstance>
+            <moduleInstance id="module_Selectable_String_6">
+                <module>
+                    <instantiationString>de.javagl.flow.ModuleCreatorInstantiator.instantiateByModuleCreatorClassName(de.javagl.flow.modules.basic.selectable.string.SelectableStringModuleCreator)</instantiationString>
+                    <configuration>
+                        <java class="java.beans.XMLDecoder" version="1.8.0_45">
+                            <object class="de.javagl.flow.modules.basic.selectable.string.StringBean">
+                                <void property="value">
+                                    <string>data/iris.arff</string>
+                                </void>
+                            </object>
+                        </java>
+                    </configuration>
+                </module>
+            </moduleInstance>
+        </modules>
+        <links>
+            <linkInstance>
+                <link>
+                    <sourceModule idref="module_Load_instances_0"/>
+                    <sourceModuleOutputSlotIndex>0</sourceModuleOutputSlotIndex>
+                    <targetModule idref="module_Randomize_1"/>
+                    <targetModuleInputSlotIndex>0</targetModuleInputSlotIndex>
+                </link>
+            </linkInstance>
+            <linkInstance>
+                <link>
+                    <sourceModule idref="module_Randomize_1"/>
+                    <sourceModuleOutputSlotIndex>0</sourceModuleOutputSlotIndex>
+                    <targetModule idref="module_J48_2"/>
+                    <targetModuleInputSlotIndex>0</targetModuleInputSlotIndex>
+                </link>
+            </linkInstance>
+            <linkInstance>
+                <link>
+                    <sourceModule idref="module_J48_2"/>
+                    <sourceModuleOutputSlotIndex>0</sourceModuleOutputSlotIndex>
+                    <targetModule idref="module_Evaulation_3"/>
+                    <targetModuleInputSlotIndex>0</targetModuleInputSlotIndex>
+                </link>
+            </linkInstance>
+            <linkInstance>
+                <link>
+                    <sourceModule idref="module_Randomize_1"/>
+                    <sourceModuleOutputSlotIndex>0</sourceModuleOutputSlotIndex>
+                    <targetModule idref="module_Evaulation_3"/>
+                    <targetModuleInputSlotIndex>1</targetModuleInputSlotIndex>
+                </link>
+            </linkInstance>
+            <linkInstance>
+                <link>
+                    <sourceModule idref="module_Evaulation_3"/>
+                    <sourceModuleOutputSlotIndex>0</sourceModuleOutputSlotIndex>
+                    <targetModule idref="module_Call_Evaluation_toMatrixString___4"/>
+                    <targetModuleInputSlotIndex>0</targetModuleInputSlotIndex>
+                </link>
+            </linkInstance>
+            <linkInstance>
+                <link>
+                    <sourceModule idref="module_Call_Evaluation_toMatrixString___4"/>
+                    <sourceModuleOutputSlotIndex>1</sourceModuleOutputSlotIndex>
+                    <targetModule idref="module_GUI_Console_5"/>
+                    <targetModuleInputSlotIndex>0</targetModuleInputSlotIndex>
+                </link>
+            </linkInstance>
+            <linkInstance>
+                <link>
+                    <sourceModule idref="module_Selectable_String_6"/>
+                    <sourceModuleOutputSlotIndex>0</sourceModuleOutputSlotIndex>
+                    <targetModule idref="module_Load_instances_0"/>
+                    <targetModuleInputSlotIndex>0</targetModuleInputSlotIndex>
+                </link>
+            </linkInstance>
+        </links>
+    </flow>
+    <flowLayout>
+        <moduleBounds idref="module_Load_instances_0">
+            <bounds>-434.5 24.5 217.0 87.0</bounds>
+        </moduleBounds>
+        <moduleBounds idref="module_Randomize_1">
+            <bounds>-445.0 124.5 266.0 87.0</bounds>
+        </moduleBounds>
+        <moduleBounds idref="module_J48_2">
+            <bounds>-155.5 -105.5 295.0 87.0</bounds>
+        </moduleBounds>
+        <moduleBounds idref="module_Evaulation_3">
+            <bounds>-134.0 0.5 330.0 121.0</bounds>
+        </moduleBounds>
+        <moduleBounds idref="module_Call_Evaluation_toMatrixString___4">
+            <bounds>-146.0 134.5 336.0 121.0</bounds>
+        </moduleBounds>
+        <moduleBounds idref="module_GUI_Console_5">
+            <bounds>255.0 -80.0 341.0 225.0</bounds>
+        </moduleBounds>
+        <moduleBounds idref="module_Selectable_String_6">
+            <bounds>-449.0 -98.5 242.0 107.0</bounds>
+        </moduleBounds>
+    </flowLayout>
+</flowWorkspace>

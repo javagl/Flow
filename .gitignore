@@ -34,3 +34,7 @@
 /flow-samples/.settings
 /flow-samples/target
 /flow-samples/.classpath
+/flow-samples-weka/.project
+/flow-samples-weka/.settings
+/flow-samples-weka/target
+/flow-samples-weka/.classpath
