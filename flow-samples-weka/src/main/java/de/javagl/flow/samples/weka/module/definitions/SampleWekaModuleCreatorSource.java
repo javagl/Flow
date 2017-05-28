@@ -9,8 +9,7 @@ import de.javagl.flow.plugin.AbstractModuleCreatorSource;
 import de.javagl.flow.plugin.ModuleCreatorSource;
 
 /**
- * Implementation of a {@link ModuleCreatorSource} for the basic selection 
- * modules
+ * Implementation of a {@link ModuleCreatorSource} for the sample Weka modules
  */
 public class SampleWekaModuleCreatorSource 
     extends AbstractModuleCreatorSource 
