@@ -106,13 +106,33 @@ final class PropertyChangeEdit
     @Override
     public String getPresentationName() 
     {
+        String oldValueString = limitLength(
+            String.valueOf(propertyChangeEvent.getOldValue()), 10);
+        String newValueString = limitLength( 
+            String.valueOf(propertyChangeEvent.getNewValue()), 10);
         return "Change " 
             + propertyChangeEvent.getPropertyName() + " in "
             + propertyChangeEvent.getSource() + " from "
-            + propertyChangeEvent.getOldValue() + " to "
-            + propertyChangeEvent.getNewValue();
-        
-    }    
+            + oldValueString + " to "
+            + newValueString;
+    }
+    
+    /**
+     * Limit the length of a string to the given maximum, appending "..."
+     * if necessary, to indicate that it was truncated.
+     * 
+     * @param s The string
+     * @param maxLength The maximum length
+     * @return The limited string
+     */
+    private static String limitLength(String s, int maxLength)
+    {
+        if (s == null || s.length() <= maxLength)
+        {
+            return s;
+        }
+        return s.substring(0, maxLength) + "...";
+    }
     
     @Override
     public String toString()
