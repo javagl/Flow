@@ -114,7 +114,6 @@ public final class ModuleCreatorInstantiator
             + "(" + constructor.toGenericString() + ")";
     }
     
-    
     /**
      * Instantiate a {@link ModuleCreator} based on the given 
      * {@link ModuleCreator#getInstantiationString() instantiation string}. 
@@ -150,73 +149,118 @@ public final class ModuleCreatorInstantiator
     {
         if (instantiationString.startsWith(BY_MODULE_CREATOR_CLASS_NAME))
         {
-            String moduleCreatorClassName = 
-                extractParameterString(instantiationString);
-            if (moduleCreatorClassName == null)
-            {
-                throw new IllegalArgumentException(
-                    "Invalid instantiation string for instantiation " 
-                    + "by module creator class name: "
-                    + "'" + instantiationString + "'");
-            }
-            ModuleCreator moduleCreator =  
-                instantiateByModuleCreatorClassName(moduleCreatorClassName);
-            return moduleCreator;
+            return createFromModuleCreatorClassName(instantiationString);
         }
         
         if (instantiationString.startsWith(BY_METHOD_STRING))
         {
-            String methodStringAndShortName = 
-                extractParameterString(instantiationString);
-            if (methodStringAndShortName == null)
-            {
-                throw new IllegalArgumentException(
-                    "Invalid instantiation string for instantiation " 
-                    + "by method string: "
-                    + "'" + instantiationString + "'");
-            }
-            int commaIndex = methodStringAndShortName.lastIndexOf(',');
-            if (commaIndex == -1)
-            {
-                throw new IllegalArgumentException(
-                    "Invalid instantiation string for instantiation " 
-                    + "by method string: "
-                    + "'" + instantiationString + "'");
-            }
-            String methodString = 
-                methodStringAndShortName.substring(0, commaIndex).trim();
-            String shortNameString =
-                methodStringAndShortName.substring(commaIndex + 1).trim();
-            String shortName = null;
-            if (!shortNameString.equals("null"))
-            {
-                shortName = shortNameString;
-            }
-            ModuleCreator moduleCreator =  
-                instantiateByMethodString(methodString, shortName);
-            return moduleCreator;
+            return createFromMethodString(instantiationString);
         }
 
         if (instantiationString.startsWith(BY_CONSTRUCTOR_STRING))
         {
-            String constructorString = 
-                extractParameterString(instantiationString);
-            if (constructorString == null)
-            {
-                throw new IllegalArgumentException(
-                    "Invalid instantiation string for instantiation " 
-                    + "by constructor string: "
-                    + "'" + instantiationString + "'");
-            }
-            ModuleCreator moduleCreator =  
-                instantiateByConstructorString(constructorString);
-            return moduleCreator;
+            return createFromConstructorString(instantiationString);
         }
 
         throw new IllegalArgumentException(
             "Invalid instantiation string: '" + instantiationString + "'");
     }
+
+
+    /**
+     * Create a {@link ModuleCreator} from the given instantiation string,
+     * which was created with {@link #createInstantiationString(Class)}
+     * 
+     * @param instantiationString The instantiation string
+     * @return The {@link ModuleCreator}
+     * @throws IllegalArgumentException If the given string is not a valid
+     * instantiation string
+     */
+    private static ModuleCreator createFromModuleCreatorClassName(
+        String instantiationString)
+    {
+        String moduleCreatorClassName = 
+            extractParameterString(instantiationString);
+        if (moduleCreatorClassName == null)
+        {
+            throw new IllegalArgumentException(
+                "Invalid instantiation string for instantiation " 
+                + "by module creator class name: "
+                + "'" + instantiationString + "'");
+        }
+        ModuleCreator moduleCreator =  
+            instantiateByModuleCreatorClassName(moduleCreatorClassName);
+        return moduleCreator;
+    }
     
+    /**
+     * Create a {@link ModuleCreator} from the given instantiation string,
+     * which was created with {@link #createInstantiationString(Method, String)}
+     * 
+     * @param instantiationString The instantiation string
+     * @return The {@link ModuleCreator}
+     * @throws IllegalArgumentException If the given string is not a valid
+     * instantiation string
+     */
+    private static ModuleCreator createFromMethodString(
+        String instantiationString)
+    {
+        String methodStringAndShortName = 
+            extractParameterString(instantiationString);
+        if (methodStringAndShortName == null)
+        {
+            throw new IllegalArgumentException(
+                "Invalid instantiation string for instantiation " 
+                + "by method string: "
+                + "'" + instantiationString + "'");
+        }
+        int commaIndex = methodStringAndShortName.lastIndexOf(',');
+        if (commaIndex == -1)
+        {
+            throw new IllegalArgumentException(
+                "Invalid instantiation string for instantiation " 
+                + "by method string: "
+                + "'" + instantiationString + "'");
+        }
+        String methodString = 
+            methodStringAndShortName.substring(0, commaIndex).trim();
+        String shortNameString =
+            methodStringAndShortName.substring(commaIndex + 1).trim();
+        String shortName = null;
+        if (!shortNameString.equals("null"))
+        {
+            shortName = shortNameString;
+        }
+        ModuleCreator moduleCreator =  
+            instantiateByMethodString(methodString, shortName);
+        return moduleCreator;
+    }
+    
+    /**
+     * Create a {@link ModuleCreator} from the given instantiation string,
+     * which was created with {@link #createInstantiationString(Constructor)}
+     * 
+     * @param instantiationString The instantiation string
+     * @return The {@link ModuleCreator}
+     * @throws IllegalArgumentException If the given string is not a valid
+     * instantiation string
+     */
+    private static ModuleCreator createFromConstructorString(
+        String instantiationString)
+    {
+        String constructorString = 
+            extractParameterString(instantiationString);
+        if (constructorString == null)
+        {
+            throw new IllegalArgumentException(
+                "Invalid instantiation string for instantiation " 
+                + "by constructor string: "
+                + "'" + instantiationString + "'");
+        }
+        ModuleCreator moduleCreator =  
+            instantiateByConstructorString(constructorString);
+        return moduleCreator;
+    }
     
     /**
      * Returns the string that is contained in the given string between the
