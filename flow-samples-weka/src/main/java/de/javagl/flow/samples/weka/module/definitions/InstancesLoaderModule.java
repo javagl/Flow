@@ -8,6 +8,7 @@ package de.javagl.flow.samples.weka.module.definitions;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 
 import de.javagl.flow.module.Module;
 import de.javagl.flow.module.ModuleInfo;
@@ -15,7 +16,7 @@ import de.javagl.flow.module.SimpleAbstractModule;
 import weka.core.Instances;
 
 /**
- * Implementation of a {@link Module} loads an ARFF file and returns
+ * Implementation of a {@link Module} that loads an ARFF file and returns
  * the resulting instances.
  */
 public final class InstancesLoaderModule 
@@ -40,11 +41,9 @@ public final class InstancesLoaderModule
         fireBeforeProcessing();
         
         Instances instances = null;
-        try
+        try (Reader reader = new BufferedReader(new FileReader(fileName)))
         {
-            instances = new Instances(new BufferedReader(
-                new FileReader(fileName)));
-            instances.setClassIndex(instances.numAttributes() - 1);
+            instances = new Instances(reader);
         }
         catch (IOException e)
         {

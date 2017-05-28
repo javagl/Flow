@@ -42,6 +42,7 @@ public final class J48ClassifierModule
             String name = "weka.classifiers.trees.J48";
             outputClassifier = 
                 (Classifier) Classes.newInstanceOptional(name);
+            inputInstances.setClassIndex(inputInstances.numAttributes() - 1);
             outputClassifier.buildClassifier(inputInstances);
         } 
         catch (Exception e)
