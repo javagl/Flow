@@ -96,6 +96,18 @@ public abstract class AbstractModuleCreatorSource implements ModuleCreatorSource
     {
         return categoriesBuilder.get(subCategoryName);
     }
+    
+    /**
+     * Returns the {@link CategoriesBuilder} for the root category that 
+     * is currently built. 
+     * 
+     * @return The {@link CategoriesBuilder} for the current {@link Category}
+     */
+    protected final CategoriesBuilder<ModuleCreator> get()
+    {
+        return categoriesBuilder;
+    }
+    
 
     @Override
     public final Category<ModuleCreator> getCategory()
