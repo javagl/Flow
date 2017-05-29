@@ -46,7 +46,7 @@ public final class ModuleCreatorInstantiator
      * The full, qualified name of this class
      */
     private static final String THIS_CLASS_NAME = 
-        "de.javagl.flow.ModuleCreatorInstantiator";
+        "de.javagl.flow.module.creation.ModuleCreatorInstantiator";
     
     /**
      * The prefix that indicates that a {@link ModuleCreator} should
