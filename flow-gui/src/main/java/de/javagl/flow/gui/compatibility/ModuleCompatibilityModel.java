@@ -50,7 +50,6 @@ import de.javagl.flow.module.creation.ModuleCreator;
 import de.javagl.flow.module.slot.InputSlot;
 import de.javagl.flow.module.slot.OutputSlot;
 import de.javagl.flow.module.slot.Slot;
-import de.javagl.flow.repository.Repository;
 
 /**
  * A model providing information about {@link ModuleCreator} objects that
@@ -106,8 +105,6 @@ public final class ModuleCompatibilityModel
      * for compatible {@link ModuleCreator} objects from the given
      * collection.
      * 
-     * @param moduleCreatorRepository The {@link Repository} of 
-     * {@link ModuleCreator} instances
      * @param moduleCreators The set of all {@link ModuleCreator}
      */
     public ModuleCompatibilityModel(
@@ -327,9 +324,6 @@ public final class ModuleCompatibilityModel
      * Update the {@link #targetMethodsCategory} with the {@link ModuleCreator} 
      * objects that can create compatible method invoking {@link Module} 
      * objects for the outputs of the given set of {@link Module} objects.<br>
-     * <br>
-     * Note that these {@link ModuleCreator} objects are NOT added to the
-     * {@link #moduleCreatorRepository} in this method.
      *  
      * @param modules The relevant {@link Module} objects
      */
