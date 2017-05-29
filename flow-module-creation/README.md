@@ -21,13 +21,8 @@ the `Module` instance.
 ### Creating `ModuleCreator` instances
 
 The `ModuleCreators` class contains static factory methods to create
-predefined types of `ModuleCreator` instances. These methods
-correspond to the methods that are also available in the `Modules` and
-`ModuleInfos` classes:
+predefined types of `ModuleCreator` instances:
 
-- `ModuleCreators#createForSupplier`
-- `ModuleCreators#createForConsumer`
-- `ModuleCreators#createForFunction`
 - `ModuleCreators#createForMethod`
 - `ModuleCreators#createForConstructor`
 
