@@ -28,6 +28,10 @@ package de.javagl.flow.module.creation;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import de.javagl.flow.module.Module;
 import de.javagl.reflection.Classes;
@@ -81,8 +85,27 @@ public final class ModuleCreatorInstantiator
         Class<? extends ModuleCreator> moduleCreatorClass)
     {
         return BY_MODULE_CREATOR_CLASS_NAME 
-            + "(" + moduleCreatorClass.getName() + ")";
+            + "(" + quote(moduleCreatorClass.getName()) + ")";
     }
+    
+    /**
+     * Create the {@link ModuleCreator#getInstantiationString() 
+     * instantiation string} for the given {@link ModuleCreator} 
+     * class whose constructor receives the given argument.
+     * 
+     * @param moduleCreatorClass The {@link ModuleCreator} class
+     * @param constructorArgument The constructor argument
+     * @return The instantiation string
+     */
+    static String createInstantiationString(
+        Class<? extends ModuleCreator> moduleCreatorClass, 
+        String constructorArgument)
+    {
+        return BY_MODULE_CREATOR_CLASS_NAME 
+            + "(" + quote(moduleCreatorClass.getName())  
+            + ", " + quote(constructorArgument) + ")";
+    }
+    
 
     /**
      * Create the  {@link ModuleCreator#getInstantiationString() 
@@ -96,7 +119,8 @@ public final class ModuleCreatorInstantiator
     static String createInstantiationString(Method method, String shortName)
     {
         return BY_METHOD_STRING 
-            + "(" + method.toGenericString() + ", " + shortName + ")";
+            + "(" + quote(method.toGenericString()) 
+            + ", " + quote(shortName) + ")";
     }
     
     /**
@@ -111,7 +135,7 @@ public final class ModuleCreatorInstantiator
     static String createInstantiationString(Constructor<?> constructor)
     {
         return BY_CONSTRUCTOR_STRING 
-            + "(" + constructor.toGenericString() + ")";
+            + "(" + quote(constructor.toGenericString()) + ")";
     }
     
     /**
@@ -179,18 +203,26 @@ public final class ModuleCreatorInstantiator
     private static ModuleCreator createFromModuleCreatorClassName(
         String instantiationString)
     {
-        String moduleCreatorClassName = 
+        String parameterString = 
             extractParameterString(instantiationString);
-        if (moduleCreatorClassName == null)
+        if (parameterString == null)
         {
             throw new IllegalArgumentException(
                 "Invalid instantiation string for instantiation " 
                 + "by module creator class name: "
                 + "'" + instantiationString + "'");
         }
-        ModuleCreator moduleCreator =  
-            instantiateByModuleCreatorClassName(moduleCreatorClassName);
-        return moduleCreator;
+        
+        String[] tokens = tokenize(parameterString);
+        if (tokens.length == 1)
+        {
+            String moduleCreatorClassName = tokens[0]; 
+            return instantiateByModuleCreatorClassName(moduleCreatorClassName);
+        }
+        String moduleCreatorClassName = tokens[0]; 
+        String constructorArgument = tokens[1];
+        return instantiateByModuleCreatorClassName(
+            moduleCreatorClassName, constructorArgument);
     }
     
     /**
@@ -205,27 +237,23 @@ public final class ModuleCreatorInstantiator
     private static ModuleCreator createFromMethodString(
         String instantiationString)
     {
-        String methodStringAndShortName = 
+        String parameterString = 
             extractParameterString(instantiationString);
-        if (methodStringAndShortName == null)
+        if (parameterString == null)
         {
             throw new IllegalArgumentException(
                 "Invalid instantiation string for instantiation " 
                 + "by method string: "
                 + "'" + instantiationString + "'");
         }
-        int commaIndex = methodStringAndShortName.lastIndexOf(',');
-        if (commaIndex == -1)
+        String tokens[] = tokenize(parameterString);
+        
+        String methodString = tokens[0];
+        String shortNameString = null;
+        if (tokens.length > 1)
         {
-            throw new IllegalArgumentException(
-                "Invalid instantiation string for instantiation " 
-                + "by method string: "
-                + "'" + instantiationString + "'");
+            shortNameString = tokens[1];
         }
-        String methodString = 
-            methodStringAndShortName.substring(0, commaIndex).trim();
-        String shortNameString =
-            methodStringAndShortName.substring(commaIndex + 1).trim();
         String shortName = null;
         if (!shortNameString.equals("null"))
         {
@@ -274,13 +302,14 @@ public final class ModuleCreatorInstantiator
     private static String extractParameterString(String string)
     {
         int openingIndex = string.indexOf("(");
-        int closingIndex1 = string.lastIndexOf(")");
-        if (openingIndex == -1 || closingIndex1 == -1 ||
-            openingIndex == closingIndex1)
+        int closingIndex = string.lastIndexOf(")");
+        if (openingIndex == -1 || 
+            closingIndex == -1 ||
+            openingIndex == closingIndex)
         {
             return null;
         }
-        String result = string.substring(openingIndex + 1, closingIndex1);
+        String result = string.substring(openingIndex + 1, closingIndex);
         return result;
     }
     
@@ -313,6 +342,43 @@ public final class ModuleCreatorInstantiator
                 + moduleCreatorClassName, e);
         }
     }
+    
+    /**
+     * Create a {@link ModuleCreator} instance from the given (fully qualified)
+     * name of class that implements the {@link ModuleCreator} interface,
+     * by calling its constructor that receives the given parameter as its
+     * only argument.
+     * 
+     * @param moduleCreatorClassName The {@link ModuleCreator} class name
+     * @param constructorArgument The constructor argument
+     * @return The {@link ModuleCreator}
+     * @throws IllegalArgumentException If the instantiation was not possible
+     */
+    private static ModuleCreator instantiateByModuleCreatorClassName(
+        String moduleCreatorClassName, String constructorArgument)
+    {
+        try
+        {
+            Class<?> c = Classes.forNameUnchecked(moduleCreatorClassName);
+            Constructor<?> constructor = 
+                Constructors.getConstructorUnchecked(c, String.class);
+            Object instance = Constructors.newInstanceUnchecked(
+                constructor, constructorArgument);
+            if (!(instance instanceof ModuleCreator))
+            {
+                throw new IllegalArgumentException(
+                    "Class is not a ModuleCreator: " + moduleCreatorClassName);
+            }
+            return (ModuleCreator)instance;
+        }
+        catch (ReflectionException e)
+        {
+            throw new IllegalArgumentException(
+                "Could not instantiate ModuleCreator from class name: "
+                + moduleCreatorClassName, e);
+        }
+    }
+    
     
     /**
      * Create a {@link ModuleCreator} instance from the given string that
@@ -366,7 +432,45 @@ public final class ModuleCreatorInstantiator
         }
     }
     
+    /**
+     * Enclose the given string in <code>"</code> quotes
+     * 
+     * @param string The string 
+     * @return The quoted string
+     */
+    private static String quote(String string)
+    {
+        return "\"" + string + "\"";
+    }
+    
+    /**
+     * Tokenize the given parameter string. This will split the string
+     * which consists of comma-separated (<code>,</code>), quoted
+     * (<code>"</code>) parts, and return the tokens. Each token is
+     * the contents of one quoted string part. So the string<br>
+     * <code>"Example", "Yet, another"</code><br>
+     * will be converted into the tokens
+     * <code>Example</code> and <code>Yet, another</code><br>
+     * 
+     * @param parameterString The parameter string
+     * @return The tokens
+     */
+    private static String[] tokenize(String parameterString)
+    {
+        List<String> tokens = new ArrayList<String>();
+        String regex = "\"([^\"]*)\"|(,)";
+        Matcher m = Pattern.compile(regex).matcher(parameterString);
+        while (m.find())
+        {
+            if (m.group(1) != null)
+            {
+                tokens.add(m.group(1));
+            }
+        }
+        return tokens.toArray(new String[0]);
+    }
 
+    
     /**
      * Private constructor to prevent instantiation
      */

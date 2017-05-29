@@ -52,8 +52,8 @@ final class ConstructorModuleCreator
      */
     ConstructorModuleCreator(Constructor<?> constructor)
     {
-        super(ModuleInfos.createForConstructor(constructor), 
-            ModuleCreatorInstantiator.createInstantiationString(constructor));
+        super(ModuleCreatorInstantiator.createInstantiationString(constructor),
+            ModuleInfos.createForConstructor(constructor));
         this.constructor = constructor;
     }
 

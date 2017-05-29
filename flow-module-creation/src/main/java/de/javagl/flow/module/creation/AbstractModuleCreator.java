@@ -89,6 +89,25 @@ public abstract class AbstractModuleCreator implements ModuleCreator
     {
         this(moduleInfo, Collections.emptyList());
     }
+
+    /**
+     * Creates a new instance that can create {@link Module} instances 
+     * according to the given {@link ModuleInfo}
+     * 
+     * @param moduleInfo The {@link ModuleInfo}
+     * @param constructorArgument An argument for the constructor, that 
+     * will be part of the instantiation string
+     */
+    protected AbstractModuleCreator(ModuleInfo moduleInfo,
+        String constructorArgument)
+    {
+        this.moduleInfo = Objects.requireNonNull(
+            moduleInfo, "The moduleInfo may not be null");
+        this.instantiationString = 
+            ModuleCreatorInstantiator.createInstantiationString(
+                getClass(), constructorArgument);
+        this.supportedModuleViewTypes = new ArrayList<ModuleViewType>();
+    }
     
     /**
      * Creates a new instance that can create {@link Module} instances 
@@ -97,7 +116,7 @@ public abstract class AbstractModuleCreator implements ModuleCreator
      * @param moduleInfo The {@link ModuleInfo}
      * @param moduleViewTypes The supported {@link ModuleViewType} objects
      */
-    protected AbstractModuleCreator(ModuleInfo moduleInfo, 
+    protected AbstractModuleCreator(ModuleInfo moduleInfo,
         Collection<? extends ModuleViewType> moduleViewTypes)
     {
         this.moduleInfo = Objects.requireNonNull(
@@ -108,18 +127,43 @@ public abstract class AbstractModuleCreator implements ModuleCreator
             new ArrayList<ModuleViewType>(moduleViewTypes);
     }
     
-
     /**
      * Creates a new instance that can create {@link Module} instances 
      * according to the given {@link ModuleInfo}
      * 
      * @param moduleInfo The {@link ModuleInfo}
+     * @param moduleViewTypes The supported {@link ModuleViewType} objects
+     * @param constructorArgument An argument for the constructor, that 
+     * will be part of the instantiation string
+     */
+    protected AbstractModuleCreator(ModuleInfo moduleInfo,
+        Collection<? extends ModuleViewType> moduleViewTypes,
+        String constructorArgument)
+    {
+        this.moduleInfo = Objects.requireNonNull(
+            moduleInfo, "The moduleInfo may not be null");
+        this.instantiationString = 
+            ModuleCreatorInstantiator.createInstantiationString(
+                getClass(), constructorArgument);
+        this.supportedModuleViewTypes = 
+            new ArrayList<ModuleViewType>(moduleViewTypes);
+    }
+    
+
+    /**
+     * Creates a new instance that can create {@link Module} instances 
+     * according to the given {@link ModuleInfo}. <br>
+     * <br>
+     * <b>This constructor is not supposed to be called by implementing 
+     * classes, unless they know about the internals of the instantiation 
+     * string</b>.
+     * 
      * @param instantiationString The {@link #getInstantiationString() 
      * instantiation string} 
+     * @param moduleInfo The {@link ModuleInfo}
      */
-    protected AbstractModuleCreator(
-        ModuleInfo moduleInfo, 
-        String instantiationString)
+    protected AbstractModuleCreator(String instantiationString,
+        ModuleInfo moduleInfo)
     {
         this.moduleInfo = Objects.requireNonNull(
             moduleInfo, "The moduleInfo may not be null");

@@ -54,9 +54,9 @@ class MethodModuleCreator
      */
     MethodModuleCreator(Method method, String shortName)
     {
-        super(ModuleInfos.createForMethod(method, shortName), 
-            ModuleCreatorInstantiator.createInstantiationString(
-                method, shortName));
+        super(ModuleCreatorInstantiator.createInstantiationString(
+                method, shortName),
+            ModuleInfos.createForMethod(method, shortName));
         this.method = method;
     }
 
