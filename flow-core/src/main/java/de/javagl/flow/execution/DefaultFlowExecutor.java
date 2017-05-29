@@ -40,6 +40,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import de.javagl.flow.Flow;
+import de.javagl.flow.link.Link;
 import de.javagl.flow.module.Module;
 
 /**
@@ -90,11 +91,33 @@ class DefaultFlowExecutor implements FlowExecutor
         
         if (!done)
         {
+            cleanupLinks(flow);
             logger.warning("Executing flow caused an error");
         }
         else
         {
             logger.log(level, "Executing flow DONE");
+        }
+    }
+    
+    /**
+     * Make sure that there are no objects "blocking" the links in the
+     * given {@link Flow}, due to modules that have not been executed
+     * 
+     * TODO: Whether or not this is necessary depends on the exact
+     * implementation of the {@link Link} interface. Also see notes
+     * in {@link Link} and the DefaultLink implementation. 
+     * 
+     * @param flow The {@link Flow}
+     */
+    private static void cleanupLinks(Flow flow)
+    {
+        for (Link link : flow.getLinks())
+        {
+            while (!link.getContents().isEmpty())
+            {
+                link.provide();
+            }
         }
     }
 
