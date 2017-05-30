@@ -69,6 +69,7 @@ files of each sub-project points to this repository. The libraries are
 
 - [Category](https://github.com/javagl/Category)
 - [Common](https://github.com/javagl/Common/)
+- [CommonUI](https://github.com/javagl/CommonUI/)
 - [Reflection](https://github.com/javagl/Reflection)
 - [Types](https://github.com/javagl/Types) 
 
