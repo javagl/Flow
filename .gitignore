@@ -38,3 +38,7 @@
 /flow-samples-weka/.settings
 /flow-samples-weka/target
 /flow-samples-weka/.classpath
+/flow-module-definitions-weka/.settings
+/flow-module-definitions-weka/.classpath
+/flow-module-definitions-weka/.project
+/flow-module-definitions-weka/target

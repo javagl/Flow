@@ -35,6 +35,7 @@
         <module>flow-repository</module>
         <module>flow-module-creation</module>
         <module>flow-module-definitions-basic</module>
+        <module>flow-module-definitions-weka</module>
         <module>flow-samples</module>
     </modules>
 
