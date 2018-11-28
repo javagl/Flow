@@ -10,13 +10,6 @@
 
     <artifactId>flow-gui</artifactId>
 
-    <repositories>
-        <repository>
-            <id>localMavenRepository</id>
-            <url>file://${basedir}/../localMavenRepository</url>
-        </repository>
-    </repositories>
-
     <build>
         <plugins>
             <plugin>
@@ -59,12 +52,12 @@
         <dependency>
             <groupId>de.javagl</groupId>
             <artifactId>category</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>0.0.1</version>
         </dependency>
         <dependency>
             <groupId>de.javagl</groupId>
             <artifactId>types</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>0.0.1</version>
         </dependency>
         <dependency>
             <groupId>de.javagl</groupId>
@@ -74,12 +67,12 @@
         <dependency>
             <groupId>de.javagl</groupId>
             <artifactId>common</artifactId>
-            <version>0.0.2-SNAPSHOT</version>
+            <version>0.0.2</version>
         </dependency>
         <dependency>
             <groupId>de.javagl</groupId>
             <artifactId>common-ui</artifactId>
-            <version>0.0.3-SNAPSHOT</version>
+            <version>0.0.4</version>
         </dependency>
     </dependencies>
 </project>

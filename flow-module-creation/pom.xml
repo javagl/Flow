@@ -10,13 +10,6 @@
 
     <artifactId>flow-module-creation</artifactId>
 
-    <repositories>
-        <repository>
-            <id>localMavenRepository</id>
-            <url>file://${basedir}/../localMavenRepository</url>
-        </repository>
-    </repositories>
-
     <build>
         <plugins>
             <plugin>
@@ -39,12 +32,12 @@
         <dependency>
             <groupId>de.javagl</groupId>
             <artifactId>category</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>0.0.1</version>
         </dependency>
         <dependency>
             <groupId>de.javagl</groupId>
             <artifactId>reflection</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>0.0.1</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

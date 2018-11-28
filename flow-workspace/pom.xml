@@ -10,13 +10,6 @@
 
     <artifactId>flow-workspace</artifactId>
 
-    <repositories>
-        <repository>
-            <id>localMavenRepository</id>
-            <url>file://${basedir}/../localMavenRepository</url>
-        </repository>
-    </repositories>
-
     <build>
         <plugins>
             <plugin>
