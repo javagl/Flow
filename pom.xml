@@ -37,6 +37,7 @@
         <module>flow-module-definitions-basic</module>
         <module>flow-module-definitions-weka</module>
         <module>flow-samples</module>
+        <module>flow-samples-weka</module>
     </modules>
 
     <build>
