@@ -49,6 +49,9 @@ This repository contains the following sub-projects:
   Classes for reading and writing XML files that contain 
   flow definitions. 
 
+* [flow-repository](https://github.com/javagl/Flow/tree/master/flow-repository) :
+  A simple repository for module definitions
+
 * [flow-module-definitions-basic](https://github.com/javagl/Flow/tree/master/flow-module-definitions-basic) :
   Some basic `Module` definitions, for modules that allow entering 
   values or print objects to the console.
@@ -58,24 +61,6 @@ This repository contains the following sub-projects:
   
 See the `README.md` of each project for further information.
 
-
-
-## The local Maven repository
-
-Some of the libraries depend on other libraries that are not yet available
-on Maven Central, or on SNAPSHOT versions of existing libraries. These
-libraries are contained in the `localMavenRepository`, and the `pom.xml`
-files of each sub-project points to this repository. The libraries are
-
-- [Category](https://github.com/javagl/Category)
-- [Common](https://github.com/javagl/Common/)
-- [CommonUI](https://github.com/javagl/CommonUI/)
-- [Reflection](https://github.com/javagl/Reflection)
-- [Types](https://github.com/javagl/Types) 
-
-As soon as these libraries are in Maven Central, the local repository
-will be omitted.
- 
  
 ## Implementing custom modules
 
