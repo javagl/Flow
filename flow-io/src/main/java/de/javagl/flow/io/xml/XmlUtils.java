@@ -134,8 +134,6 @@ public class XmlUtils
     {
         TransformerFactory transformerFactory = 
             TransformerFactory.newInstance();
-        final int indent = 4;
-        transformerFactory.setAttribute("indent-number", indent);
         Transformer transformer = null;
         try
         {
@@ -150,6 +148,10 @@ public class XmlUtils
         transformer.setOutputProperty(OutputKeys.STANDALONE, "yes");
         transformer.setOutputProperty(OutputKeys.INDENT, "yes");
         transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+        int indent = 4;
+        transformer.setOutputProperty(
+            "{http://xml.apache.org/xslt}indent-amount", 
+            String.valueOf(indent));
         DOMSource source = new DOMSource(node);
 
         StreamResult xmlOutput = new StreamResult(writer);
