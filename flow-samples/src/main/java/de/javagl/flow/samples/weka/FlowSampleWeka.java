@@ -8,7 +8,6 @@ import de.javagl.category.Category;
 import de.javagl.flow.Flow;
 import de.javagl.flow.gui.FlowEditorApplication;
 import de.javagl.flow.module.creation.ModuleCreator;
-import de.javagl.flow.modules.weka.WekaModuleCreatorSource;
 import de.javagl.flow.plugin.ModuleCreatorServices;
 import de.javagl.flow.samples.Utils;
 
@@ -29,11 +28,7 @@ public class FlowSampleWeka
     {
         CategoriesBuilder<ModuleCreator> categoriesBuilder =
             Categories.createBuilder("All modules");
-
         ModuleCreatorServices.initialize(categoriesBuilder);
-        categoriesBuilder.get("Weka").mergeRecursively(
-            new WekaModuleCreatorSource().getCategory());
-
         return categoriesBuilder.get();
     }
     
