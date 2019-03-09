@@ -30,6 +30,7 @@ import static de.javagl.flow.module.creation.ConstructorModuleCreators.createCon
 import static de.javagl.flow.module.creation.MethodModuleCreators.createStaticMethodModuleCreators;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -66,6 +67,8 @@ class BuiltInModuleCreators
         
         b.get("Methods").get("Collections").addAll(
             createStaticMethodModuleCreators(Collections.class));
+        b.get("Methods").get("Arrays").addAll(
+            createStaticMethodModuleCreators(Arrays.class));
         b.get("Methods").get("Comparator").addAll(
             createStaticMethodModuleCreators(Comparator.class));
         
