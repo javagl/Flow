@@ -157,6 +157,10 @@ public final class SelectableFileModuleView
             textField.setText(bean.getValue());
             
             String fileName = bean.getValue();
+            if (fileName == null)
+            {
+                fileName = "";
+            }
             File file = new File(fileName);
             fileChooser.setSelectedFile(file);
         }
