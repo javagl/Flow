@@ -70,6 +70,8 @@ class GuiUtils
             "java.util.function.",
             "java.util.",
             "de.javagl.flow.",
+            "de.javagl.data.",
+            "de.javagl.timeseries.",
             "com.google.common.collect.",
             "com.google.common.",
             "org.apache.commons.math3.stat.clustering."
