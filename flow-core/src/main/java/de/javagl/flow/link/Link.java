@@ -26,8 +26,6 @@
  */
 package de.javagl.flow.link;
 
-import java.util.List;
-
 import de.javagl.flow.module.Module;
 import de.javagl.flow.module.slot.InputSlot;
 import de.javagl.flow.module.slot.OutputSlot;
@@ -41,11 +39,6 @@ import de.javagl.flow.module.slot.OutputSlot;
  */
 public interface Link
 {
-    // Note: The exact behavior of a link may have to be specified in more detail. 
-    // For example, the {@link DefaultLink} implementation internally uses a 
-    // one-element, blocking queue. Other implementations may be possible. 
-    // Also see notes in {@link DefaultLink}.
-    
     /**
      * Accept the given input object, which was produced by the 
      * module that the {@link #getSourceSlot()} belongs to, so 
@@ -79,7 +72,7 @@ public interface Link
      * @return The target slot of this link
      */
     InputSlot getTargetSlot();
- 
+    
     /**
      * Add the given {@link LinkListener} to this link, to be informed 
      * when objects are {@link Link#accept(Object) accepted} or 
@@ -96,10 +89,5 @@ public interface Link
      */
     void removeLinkListener(LinkListener linkListener);
     
-    
-    /**
-     * TODO Experimental. Do not use.
-     * @return Do not use
-     */
-    List<Object> getContents();
 }
+

@@ -26,9 +26,12 @@
  */
 package de.javagl.flow.gui;
 
+import java.util.concurrent.TimeUnit;
+
 import de.javagl.flow.Flow;
 import de.javagl.flow.execution.FlowExecutor;
 import de.javagl.flow.execution.FlowExecutors;
+import de.javagl.flow.execution.LoggingFlowExecutorListener;
 import de.javagl.flow.workspace.FlowWorkspace;
 
 /**
@@ -43,6 +46,11 @@ final class FlowExecutorControl
     private FlowWorkspace flowWorkspace;
     
     /**
+     * The {@link FlowExecutor}
+     */
+    private FlowExecutor flowExecutor;
+    
+    /**
      * Set the {@link FlowWorkspace} on which this control operates
      * 
      * @param flowWorkspace The {@link FlowWorkspace}
@@ -53,20 +61,26 @@ final class FlowExecutorControl
     }
     
     /**
-     * Execute the flow from the current {@link FlowWorkspace}
+     * Execute the flow from the current {@link FlowWorkspace},
+     * blocking the calling thread until the execution completed
      */
     void executeFlow()
     {
-        // TODO This should be a SwingWorker with extended functionality
-        Thread t = new Thread(new Runnable()
+        flowExecutor = FlowExecutors.create();
+        flowExecutor.addFlowExecutorListener(new LoggingFlowExecutorListener());
+        flowExecutor.execute(flowWorkspace.getFlow());
+        flowExecutor = null;
+    }
+    
+    /**
+     * Cancel any execution that may currently be in progress
+     */
+    void cancelExecution()
+    {
+        if (flowExecutor != null)
         {
-            @Override
-            public void run()
-            {
-                FlowExecutor flowExecutor = FlowExecutors.create();
-                flowExecutor.execute(flowWorkspace.getFlow());
-            }
-        });
-        t.start();
+            flowExecutor.finishExecution(100, TimeUnit.MILLISECONDS);
+            flowExecutor = null;
+        }
     }
 }

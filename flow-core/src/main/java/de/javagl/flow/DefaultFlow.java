@@ -226,4 +226,13 @@ final class DefaultFlow implements MutableFlow
             flowListener.linkRemoved(flowEvent);
         }
     }
+    
+    @Override
+    public String toString()
+    {
+        return "DefaultFlow["
+            + modules.size() + " modules, " 
+            + links.size() + " links]";
+    }
 }
+

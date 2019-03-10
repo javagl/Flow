@@ -30,7 +30,6 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.Line2D;
@@ -157,7 +156,6 @@ final class LinksPanel extends JPanel
 
         paintNormalLinks(g);
         paintHighlightedLink(g);
-        paintLinkContents(g);
         paintCurrentLine(g);
     }
 
@@ -227,30 +225,6 @@ final class LinksPanel extends JPanel
         g.draw(shape);
     }
 
-    /**
-     * Paint all links contents indicators into the given graphics
-     * 
-     * @param g The graphics
-     */
-    private void paintLinkContents(Graphics2D g)
-    {
-        Flow flow = flowWorkspace.getFlow();
-        for (Link link : flow.getLinks())
-        {
-            int contentsSize = link.getContents().size();
-            if (contentsSize != 0)
-            {
-                Shape line = linkShapeProvider.shapeForLink(link);
-                Rectangle bounds = line.getBounds();
-                int cx = (int) bounds.getCenterX();
-                int cy = (int) bounds.getCenterY();
-                g.setColor(Color.BLUE);
-                g.fillOval(cx - 10, cy - 10, 20, 20);
-                g.setColor(Color.WHITE);
-                g.drawString(String.valueOf(contentsSize), cx - 8, cy + 5);
-            }
-        }
-    }
     
     /**
      * Paint the current line into the given graphics

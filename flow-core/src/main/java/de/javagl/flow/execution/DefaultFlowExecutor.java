@@ -29,6 +29,7 @@ package de.javagl.flow.execution;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
@@ -36,17 +37,17 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import de.javagl.flow.Flow;
-import de.javagl.flow.link.Link;
 import de.javagl.flow.module.Module;
 
 /**
  * Default implementation of a {@link FlowExecutor}
  */
-class DefaultFlowExecutor implements FlowExecutor
+class DefaultFlowExecutor extends AbstractFlowExecutor implements FlowExecutor
 {
     /**
      * The logger used in this class
@@ -57,7 +58,7 @@ class DefaultFlowExecutor implements FlowExecutor
     /**
      * The log level for execution process messages
      */
-    private static final Level level = Level.FINE;
+    private static final Level level = Level.INFO;
     
     /**
      * The executor service for the current call to {@link #execute(Flow)}
@@ -68,59 +69,82 @@ class DefaultFlowExecutor implements FlowExecutor
     public void execute(Flow flow)
     {
         logger.log(level, "Executing flow");
+        fireBeforeExecution(flow);
 
-        Set<Module> modules = flow.getModules();
-        if (modules.isEmpty())
-        {
-            return;
-        }
-        
         executorService = 
             ExecutorExtensions.newExceptionAwareCachedThreadPool();
         FlowExecutorUtils.startWatchdog(executorService);
         
-        boolean done = false;
-        try
-        {
-            done = execute(modules);
-        }
-        finally
-        {
-            executorService.shutdown();
-        }
-        
+        Set<Module> modules = flow.getModules();
+        boolean done = execute(modules);
         if (!done)
         {
-            cleanupLinks(flow);
             logger.warning("Executing flow caused an error");
         }
         else
         {
             logger.log(level, "Executing flow DONE");
         }
-    }
-    
-    /**
-     * Make sure that there are no objects "blocking" the links in the
-     * given {@link Flow}, due to modules that have not been executed
-     * 
-     * TODO: Whether or not this is necessary depends on the exact
-     * implementation of the {@link Link} interface. Also see notes
-     * in {@link Link} and the DefaultLink implementation. 
-     * 
-     * @param flow The {@link Flow}
-     */
-    private static void cleanupLinks(Flow flow)
-    {
-        for (Link link : flow.getLinks())
+        
+        executorService.shutdown();
+        try
         {
-            while (!link.getContents().isEmpty())
+            boolean terminated = executorService.awaitTermination(
+                Long.MAX_VALUE, TimeUnit.DAYS);
+            if (terminated)
             {
-                link.provide();
+                executorService = null;
             }
+        } 
+        catch (InterruptedException e)
+        {
+            logger.warning(
+                "Interrupted while waiting for execution to complete. " + e);
+            Thread.currentThread().interrupt();
         }
+        fireAfterExecution(flow);
     }
 
+    @Override
+    public boolean finishExecution(long timeout, TimeUnit unit)
+    {
+        if (executorService == null)
+        {
+            return true;
+        }
+        executorService.shutdown();
+        
+        logger.log(level, "Waiting for up to " + timeout + " " + unit
+            + " for the execution to complete...");
+        long beforeNs = System.nanoTime();
+        try
+        {
+            executorService.awaitTermination(timeout, unit);
+        } 
+        catch (InterruptedException e)
+        {
+            logger.warning(
+                "Interrupted while waiting for execution to complete. " + e);
+            Thread.currentThread().interrupt();
+            return false;
+        }
+        if (executorService.isTerminated())
+        {
+            long afterNs = System.nanoTime();
+            double seconds = (afterNs - beforeNs) * 1e-9;
+            logger.log(level, String.format(Locale.ENGLISH, 
+                "Execution completed after %.2f seconds", seconds));
+            return true;
+        }
+        else
+        {
+            logger.log(level, "Timeout of " + timeout + " " + unit
+                + " passed, shutting down NOW");
+            executorService.shutdownNow();
+            return false;
+        }
+    }
+    
     /**
      * Execute the given collection of {@link Module} instances
      * 

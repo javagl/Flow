@@ -26,6 +26,7 @@
  */
 package de.javagl.flow.module;
 
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -46,7 +47,25 @@ public final class LoggingModuleExecutionListener
     /**
      * The log level that will be used for the output
      */
-    private static Level level = Level.INFO;
+    private Level level = Level.INFO;
+
+    /**
+     * Creates a new instance with an unspecified default log level
+     */
+    public LoggingModuleExecutionListener()
+    {
+        this(Level.INFO);
+    }
+    
+    /**
+     * Creates a new instance with the given log level
+     * 
+     * @param level The level
+     */
+    public LoggingModuleExecutionListener(Level level)
+    {
+        this.level = Objects.requireNonNull(level, "The level may not be null");
+    }
     
     @Override
     public void beforeExecution(ModuleExecutionEvent moduleExecutionEvent)

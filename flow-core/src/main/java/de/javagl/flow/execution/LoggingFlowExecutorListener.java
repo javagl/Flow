@@ -26,47 +26,60 @@
  */
 package de.javagl.flow.execution;
 
-import java.util.concurrent.TimeUnit;
+import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import de.javagl.flow.Flow;
-import de.javagl.flow.module.Module;
 
 /**
- * Interface for classes that may execute the {@link Module} instances
- * that are contained in a {@link Flow}.  
+ * Implementation of the {@link FlowExecutorListener} interface that
+ * simply prints all operations as logging messages.
  */
-public interface FlowExecutor
+public final class LoggingFlowExecutorListener 
+    implements FlowExecutorListener
 {
     /**
-     * Execute the {@link Module} instances in the given {@link Flow}
-     * 
-     * @param flow The {@link Flow}
+     * The logger used in this class
      */
-    void execute(Flow flow);
+    private static final Logger logger = 
+        Logger.getLogger(LoggingFlowExecutorListener.class.getName());
     
     /**
-     * Finish the current execution, waiting for up to the specified time
-     * if necessary.
-     * 
-     * @param timeout The timeout
-     * @param unit The time unit
-     * @return Whether the execution completed normally
+     * The log level that will be used for the output
      */
-    boolean finishExecution(long timeout, TimeUnit unit);
+    private Level level;
+
+    /**
+     * Creates a new instance with an unspecified default log level
+     */
+    public LoggingFlowExecutorListener()
+    {
+        this(Level.INFO);
+    }
     
     /**
-     * Add the given {@link FlowExecutorListener} to be informed about
-     * the progress of this instance
+     * Creates a new instance with the given log level
      * 
-     * @param flowExecutorListener The {@link FlowExecutorListener}
+     * @param level The level
      */
-    void addFlowExecutorListener(FlowExecutorListener flowExecutorListener);
+    public LoggingFlowExecutorListener(Level level)
+    {
+        this.level = Objects.requireNonNull(level, "The level may not be null");
+    }
     
-    /**
-     * Remove the given {@link FlowExecutorListener}
-     * 
-     * @param flowExecutorListener The {@link FlowExecutorListener}
-     */
-    void removeFlowExecutorListener(FlowExecutorListener flowExecutorListener);
+    @Override
+    public void beforeExecution(FlowExecutorEvent flowExecutorEvent)
+    {
+        logger.log(level, "beforeExecution  "
+            + flowExecutorEvent.getFlow());
+    }
+
+    @Override
+    public void afterExecution(FlowExecutorEvent flowExecutorEvent)
+    {
+        logger.log(level, "afterExecution   "
+            + flowExecutorEvent.getFlow());
+    }
+
     
 }

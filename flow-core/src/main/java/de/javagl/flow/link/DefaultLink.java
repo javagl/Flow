@@ -26,49 +26,21 @@
  */
 package de.javagl.flow.link;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import de.javagl.flow.module.slot.InputSlot;
 import de.javagl.flow.module.slot.OutputSlot;
 
 /**
  * Default implementation of a {@link Link}.
- * 
- * TODO Also see notes in {@link Link}
  */
 final class DefaultLink extends AbstractLink implements Link
 {
     /**
-     * The logger used in this class
+     * The current contents of this link
      */
-    private static final Logger logger = 
-        Logger.getLogger(DefaultLink.class.getName());
+    private Object contents;
 
-    /**
-     * The log level that will be used for the output
-     */
-    private static final Level level = Level.FINE;
-
-    /**
-     * An object representing a 'null' entry in the queue. Blocking
-     * queues can not accept 'null' as their input, so this object
-     * is used as a placeholder for 'null'. 
-     */
-    private static final Object NULL_OBJECT = new Object();
-    
-    /**
-     * The queue that internally stores the value that is
-     * passes through this link.
-     */
-    private final BlockingQueue<Object> queue;
-    
     /**
      * Creates a new link between the given source- and target slot
      * 
@@ -81,73 +53,22 @@ final class DefaultLink extends AbstractLink implements Link
         InputSlot targetSlot)
     {
         super(sourceSlot, targetSlot);
-        this.queue = new ArrayBlockingQueue<Object>(1);
     }
-
+    
     @Override
     public void accept(Object object)
     {
-        try
-        {
-            logger.log(level, this + " try to put");
-            if (object == null)
-            {
-                queue.put(NULL_OBJECT);
-            }
-            else
-            {
-                queue.put(object);
-            }
-            logger.log(level, this + " try to put DONE");
-            fireObjectAccepted(object);
-        }
-        catch (InterruptedException e)
-        {
-            logger.log(level, 
-                this + " was interrupted while trying to accept");
-            Thread.currentThread().interrupt();
-        }
+        this.contents = object;
+        fireObjectAccepted(object);
     }
 
     @Override
     public Object provide()
     {
-        try
-        {
-            logger.log(level, this + " try to take");
-            Object result = queue.take();
-            if (result == NULL_OBJECT)
-            {
-                result = null;
-            }
-            logger.log(level, this + " try to take DONE");
-            fireObjectProvided(result);
-            return result;
-        }
-        catch (InterruptedException e)
-        {
-            logger.log(level,
-                this + " was interrupted while trying to provide");
-            Thread.currentThread().interrupt();
-            return null;
-        }
+        fireObjectProvided(contents);
+        return contents;
     }
 
-    @Override
-    public List<Object> getContents()
-    {
-        Object contentsArray[] = queue.toArray();
-        for (int i = 0; i < contentsArray.length; i++)
-        {
-            if (contentsArray[i] == NULL_OBJECT)
-            {
-                contentsArray[i] = null;
-            }
-        }
-        return Collections.unmodifiableList(Arrays.asList(contentsArray));
-    }
-    
-    
     @Override
     public String toString()
     {

@@ -32,7 +32,6 @@ import java.awt.GridLayout;
 import java.util.Collection;
 
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -277,7 +276,6 @@ final class FlowEditorApplicationPanel extends JPanel
     
     /**
      * Creates a new FlowEditorApplicationPanel. It will contain the 
-     * {@link #createControlPanel() control panel},
      * {@link #createMainPanel() main panel} and
      * {@link #createInfoPanel() info panel}<br>
      * 
@@ -292,13 +290,7 @@ final class FlowEditorApplicationPanel extends JPanel
         createTrees();
         
         setLayout(new GridLayout(1,1));
-        JSplitPane splitPaneT = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         JSplitPane splitPaneB = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        
-        JPanel controlPanel = createControlPanel();
-        splitPaneT.setTopComponent(controlPanel);
-        splitPaneT.setBottomComponent(splitPaneB);
-        splitPaneT.setResizeWeight(0.0);
         
         JPanel mainPanel = createMainPanel();
         splitPaneB.setTopComponent(mainPanel);
@@ -307,9 +299,8 @@ final class FlowEditorApplicationPanel extends JPanel
         splitPaneB.setBottomComponent(infoPanel);
         splitPaneB.setResizeWeight(1.0);
 
-        GuiUtils.setDividerLocation(splitPaneT, 0.05);
         GuiUtils.setDividerLocation(splitPaneB, 0.7);
-        add(splitPaneT);
+        add(splitPaneB);
         
         Category<ModuleCreator> rootModuleCreatorCategory =
             flowEditorContext.getRootModuleCreatorCategory();
@@ -324,26 +315,6 @@ final class FlowEditorApplicationPanel extends JPanel
         
     }
 
-    
-
-    /**
-     * Create the control panel
-     * 
-     * @return The control panel
-     */
-    private JPanel createControlPanel()
-    {
-        JPanel controlPanel = new JPanel();
-        
-        JButton executeFlowButton = new JButton("Execute flow");
-        executeFlowButton.addActionListener(e -> 
-            flowExecutorControl.executeFlow());
-        controlPanel.add(executeFlowButton);
-        
-        return controlPanel;
-    }
-    
-    
     /**
      * Create the main panel. It will contain the 
      * {@link #createMainTreesPanel()} and the   

@@ -26,47 +26,23 @@
  */
 package de.javagl.flow.execution;
 
-import java.util.concurrent.TimeUnit;
-
-import de.javagl.flow.Flow;
-import de.javagl.flow.module.Module;
-
 /**
- * Interface for classes that may execute the {@link Module} instances
- * that are contained in a {@link Flow}.  
+ * Interface for classes that want to be informed about the execution
+ * progress of a {@link FlowExecutor}.
  */
-public interface FlowExecutor
+public interface FlowExecutorListener
 {
     /**
-     * Execute the {@link Module} instances in the given {@link Flow}
-     * 
-     * @param flow The {@link Flow}
+     * Will be called before the actual execution of a {@link FlowExecutor}
+     *  
+     * @param flowExecutorEvent The {@link FlowExecutorEvent}
      */
-    void execute(Flow flow);
+    void beforeExecution(FlowExecutorEvent flowExecutorEvent);
     
     /**
-     * Finish the current execution, waiting for up to the specified time
-     * if necessary.
+     * Will be called when a {@link FlowExecutor} finished executing 
      * 
-     * @param timeout The timeout
-     * @param unit The time unit
-     * @return Whether the execution completed normally
+     * @param flowExecutorEvent The {@link FlowExecutorEvent}
      */
-    boolean finishExecution(long timeout, TimeUnit unit);
-    
-    /**
-     * Add the given {@link FlowExecutorListener} to be informed about
-     * the progress of this instance
-     * 
-     * @param flowExecutorListener The {@link FlowExecutorListener}
-     */
-    void addFlowExecutorListener(FlowExecutorListener flowExecutorListener);
-    
-    /**
-     * Remove the given {@link FlowExecutorListener}
-     * 
-     * @param flowExecutorListener The {@link FlowExecutorListener}
-     */
-    void removeFlowExecutorListener(FlowExecutorListener flowExecutorListener);
-    
+    void afterExecution(FlowExecutorEvent flowExecutorEvent);
 }

@@ -26,10 +26,10 @@
  */
 package de.javagl.flow.gui;
 
+import java.awt.BorderLayout;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
-import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -245,6 +245,16 @@ public final class FlowEditorApplication
      */
     private boolean currentStateUnsaved = false;
     
+    /**
+     * The {@link FlowExecutorControl}
+     */
+    private FlowExecutorControl flowExecutorControl;
+    
+    /**
+     * The {@link FlowExecutorControlPanel}
+     */
+    private final FlowExecutorControlPanel flowExecutorControlPanel;
+
     /** 
      * The {@link FlowEditorContext} in which this application operates
      */
@@ -277,7 +287,7 @@ public final class FlowEditorApplication
                 exit();
             }
         });
-        frame.getContentPane().setLayout(new GridLayout(1,1));
+        frame.getContentPane().setLayout(new BorderLayout());
 
         // Create the menu bar
         JMenuBar menuBar = new JMenuBar();
@@ -290,8 +300,15 @@ public final class FlowEditorApplication
         // Create the main application panel and initialize the FlowEditor        
         flowEditorApplicationPanel = 
             new FlowEditorApplicationPanel(flowEditorContext);
-        initEditor(FlowWorkspaces.create());
-        frame.getContentPane().add(flowEditorApplicationPanel);
+        frame.getContentPane().add(
+            flowEditorApplicationPanel, BorderLayout.CENTER);
+        
+        flowExecutorControlPanel = new FlowExecutorControlPanel();
+        frame.getContentPane().add(
+            flowExecutorControlPanel, BorderLayout.NORTH);
+
+        initWorkspace(FlowWorkspaces.create());
+        
         
         // Set up the hotkeys for undo/redo
         ActionMap actionMap = flowEditorApplicationPanel.getActionMap();
@@ -381,7 +398,7 @@ public final class FlowEditorApplication
     
     /**
      * Starts the creation of a new {@link Flow} by calling 
-     * {@link #initEditor(MutableFlowWorkspace)} with a new
+     * {@link #initWorkspace(MutableFlowWorkspace)} with a new
      * {@link FlowWorkspace}.
      * If there are unsaved changes, the user is asked for confirmation. 
      */
@@ -407,7 +424,7 @@ public final class FlowEditorApplication
                 return;
             }
         }
-        initEditor(FlowWorkspaces.create());
+        initWorkspace(FlowWorkspaces.create());
     }
     
     
@@ -450,7 +467,7 @@ public final class FlowEditorApplication
     
     /**
      * Read a {@link FlowWorkspace} from the given file, and 
-     * pass it to {@link #initEditor(MutableFlowWorkspace)}.
+     * pass it to {@link #initWorkspace(MutableFlowWorkspace)}.
      * 
      * @param file The file to open
      */
@@ -503,20 +520,21 @@ public final class FlowEditorApplication
                 }
             }
         }
-        initEditor(flowWorkspace);
+        initWorkspace(flowWorkspace);
     }
 
     
     /**
-     * Initialize a {@link FlowEditor} for the given workspace, and
-     * show it in the 
+     * Initialize a {@link FlowEditor} and {@link FlowExecutorControl} for 
+     * the given workspace, and show it in the 
      * {@link FlowEditorApplicationPanel#setFlowEditor(FlowEditor)
      * FlowEditorApplicationPanel}
+     * and {@link FlowExecutorControlPanel#setFlowExecutorControl(
+     * FlowExecutorControl) FlowExecutorControlPanel}, respectively
      * 
-     * @param flowWorkspace The {@link FlowWorkspace} that should be
-     * edited with the {@link FlowEditor}
+     * @param flowWorkspace The {@link FlowWorkspace}
      */
-    private void initEditor(MutableFlowWorkspace flowWorkspace)
+    private void initWorkspace(MutableFlowWorkspace flowWorkspace)
     {
         if (flowEditor != null)
         {
@@ -528,6 +546,14 @@ public final class FlowEditorApplication
         flowEditor.addUndoableEditListener(flowEditorUndoManager);
         flowEditor.addUndoableEditListener(savedStateUndoableEditListener);
         flowEditorApplicationPanel.setFlowEditor(flowEditor);
+        
+        if (flowExecutorControl != null)
+        {
+            flowExecutorControl.cancelExecution();
+        }
+        flowExecutorControl = new FlowExecutorControl();
+        flowExecutorControl.setFlowWorkspace(flowWorkspace);
+        flowExecutorControlPanel.setFlowExecutorControl(flowExecutorControl);
 
         currentStateUnsaved = false;
         flowEditorUndoManager.reset();
