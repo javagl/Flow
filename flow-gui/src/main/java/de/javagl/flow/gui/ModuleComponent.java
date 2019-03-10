@@ -259,7 +259,6 @@ final class ModuleComponent extends JInternalFrame
         statusBar.setStringPainted(true);
         statusBar.setString(" ");
         statusBar.setOpaque(true);
-        statusBar.setBackground(Color.WHITE);
         statusBar.setBorder(
             BorderFactory.createMatteBorder(1, 0, 0, 0, Color.BLACK));
         getContentPane().add(statusBar, BorderLayout.SOUTH);
@@ -267,6 +266,11 @@ final class ModuleComponent extends JInternalFrame
         setVisible(true);
         setResizable(visualizationView != null);
         setMaximizable(visualizationView != null);
+        
+        // Uninstall the popup menu that may have been added by the Nimbus L&F.
+        // A popup menu that may contain the action to delete the module 
+        // component is handled via the ModuleComponentPopupMenus class
+        setComponentPopupMenu(null);
     }
     
     /**
@@ -442,6 +446,8 @@ final class ModuleComponent extends JInternalFrame
         Dimension dim = super.getMinimumSize();
         dim.width = Math.max(dim.width, internalMinimumSize.width);
         dim.height= Math.max(dim.height, internalMinimumSize.height);
+        dim.width += BORDER_SIZE * 2;
+        dim.height += BORDER_SIZE * 2;
         return dim;
     }
     
@@ -456,6 +462,8 @@ final class ModuleComponent extends JInternalFrame
         Dimension dim = super.getPreferredSize();
         dim.width = Math.max(dim.width, internalMinimumSize.width);
         dim.height= Math.max(dim.height, internalMinimumSize.height);
+        dim.width += BORDER_SIZE * 2;
+        dim.height += BORDER_SIZE * 2;
         return dim;
     }
     

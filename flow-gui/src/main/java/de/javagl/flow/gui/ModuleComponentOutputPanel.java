@@ -49,7 +49,6 @@ final class ModuleComponentOutputPanel extends JPanel
     ModuleComponentOutputPanel(Module module)
     {
         super(new GridBagLayout());
-        setBackground(Color.WHITE);
         setBorder(BorderFactory.createMatteBorder(0, 1, 0, 0, Color.BLACK));
 
         outputSlotLabels = new ArrayList<JLabel>();
@@ -68,7 +67,6 @@ final class ModuleComponentOutputPanel extends JPanel
             // slot name and type information
             JLabel outputInfoLabel = new JLabel();
             outputInfoLabel.setOpaque(true);
-            outputInfoLabel.setBackground(Color.WHITE);
             outputInfoLabel.setBorder(
                 BorderFactory.createEmptyBorder(2, 2, 2, 2));
             outputInfoLabels.add(outputInfoLabel);
@@ -77,7 +75,6 @@ final class ModuleComponentOutputPanel extends JPanel
             constraints.weightx = 1.0;
             JPanel container = new JPanel(
                 new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 0, 0));
-            container.setBackground(Color.WHITE);
             container.add(outputInfoLabel);
             add(container, constraints);
 
@@ -85,7 +82,6 @@ final class ModuleComponentOutputPanel extends JPanel
             // arrow > and allow connecting links
             JLabel outputSlotLabel = new JLabel(" > ");
             outputSlotLabel.setOpaque(true);
-            outputSlotLabel.setBackground(Color.WHITE);
             outputSlotLabel.setBorder(                    
                 BorderFactory.createCompoundBorder(
                     BorderFactory.createEmptyBorder(2, 2, 2, 2), 

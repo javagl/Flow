@@ -49,7 +49,6 @@ final class ModuleComponentInputPanel extends JPanel
     ModuleComponentInputPanel(Module module)
     {
         super(new GridBagLayout());
-        setBackground(Color.WHITE);
         setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.BLACK));
         
         inputSlotLabels = new ArrayList<JLabel>();
@@ -68,7 +67,6 @@ final class ModuleComponentInputPanel extends JPanel
             // arrow > and allow connecting links
             JLabel inputSlotLabel = new JLabel(" > ");
             inputSlotLabel.setOpaque(true);
-            inputSlotLabel.setBackground(Color.WHITE);
             inputSlotLabel.setBorder(
                 BorderFactory.createCompoundBorder(
                     BorderFactory.createEmptyBorder(2, 2, 2, 2), 
@@ -84,7 +82,6 @@ final class ModuleComponentInputPanel extends JPanel
             // slot name and type information
             JLabel inputInfoLabel = new JLabel();
             inputInfoLabel.setOpaque(true);
-            inputInfoLabel.setBackground(Color.WHITE);
             inputInfoLabel.setBorder(
                 BorderFactory.createEmptyBorder(2, 2, 2, 2));
             inputInfoLabels.add(inputInfoLabel);
@@ -93,7 +90,6 @@ final class ModuleComponentInputPanel extends JPanel
             constraints.weightx = 1.0;
             JPanel container = new JPanel(
                 new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 0, 0));
-            container.setBackground(Color.WHITE);
             container.add(inputInfoLabel);
             add(container, constraints);
         }

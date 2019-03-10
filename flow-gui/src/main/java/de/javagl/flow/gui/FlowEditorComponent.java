@@ -65,6 +65,7 @@ import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.plaf.InternalFrameUI;
 import javax.swing.plaf.basic.BasicInternalFrameUI;
 
@@ -1243,7 +1244,9 @@ final class FlowEditorComponent extends JPanel implements ModuleComponentOwner
             for (ModuleComponent moduleComponent : getModuleComponents())
             {
                 moduleComponent.setShadeColor(null);
-                moduleComponent.highlightInputSlot(-1, Color.WHITE);
+                Color labelBackgroundColor = 
+                    UIManager.getColor("Label.background");
+                moduleComponent.highlightInputSlot(-1, labelBackgroundColor);
             }
         }
         else
@@ -1291,7 +1294,9 @@ final class FlowEditorComponent extends JPanel implements ModuleComponentOwner
             for (ModuleComponent moduleComponent : getModuleComponents())
             {
                 moduleComponent.setShadeColor(null);
-                moduleComponent.highlightOutputSlot(-1, Color.WHITE);
+                Color labelBackgroundColor = 
+                    UIManager.getColor("Label.background");
+                moduleComponent.highlightOutputSlot(-1, labelBackgroundColor);
             }
         }
         else
