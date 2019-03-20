@@ -26,6 +26,9 @@
  */
 package de.javagl.flow.execution;
 
+import de.javagl.flow.Flow;
+import de.javagl.flow.module.Module;
+
 /**
  * Utility methods to create {@link FlowExecutor} instances.
  */
@@ -34,15 +37,27 @@ public class FlowExecutors
     /**
      * Create a default {@link FlowExecutor}.<br>
      * <br>
-     * TODO / Note: Many details about the exact execution strategy are not
-     * yet specified. The classes in this package are preliminary and
-     * may still change in the future.
+     * This {@link FlowExecutor} will execute all {@link Module} instances in 
+     * a given {@link Flow} using "wave fronts": At each step, it will 
+     * execute all modules whose predecessors have already been executed. 
      * 
      * @return The new {@link FlowExecutor}
      */
-    public static FlowExecutor create()
+    public static FlowExecutor createDefault()
     {
         return new DefaultFlowExecutor();
+    }
+    
+    /**
+     * Create a responsive {@link FlowExecutor}.<br>
+     * <br>
+     * TODO: This is experimental. 
+     * 
+     * @return The new {@link FlowExecutor}
+     */
+    public static FlowExecutor createResponsive()
+    {
+        return new ResponsiveFlowExecutor();
     }
     
     /**

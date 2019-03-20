@@ -46,7 +46,7 @@ public class Flow_01_BasicFlow
         flow.addLink(Links.create(process, 0, output, 0));
         
         // Execute the flow
-        FlowExecutor flowExecutor = FlowExecutors.create();
+        FlowExecutor flowExecutor = FlowExecutors.createDefault();
         flowExecutor.execute(flow);
     }
     

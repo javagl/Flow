@@ -57,6 +57,9 @@ public final class FlowExecutorEvent extends EventObject
     
     /**
      * Whether the execution was cancelled
+     * 
+     * TODO The exact semantics of this flag have to be sorted out.
+     * Also see notes in {@link FlowExecutorListener}
      */
     private final boolean cancelled;
     

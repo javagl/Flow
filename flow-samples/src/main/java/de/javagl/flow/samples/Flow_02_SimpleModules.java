@@ -65,7 +65,7 @@ public class Flow_02_SimpleModules
         //   -------      -------      ----------      -------       -------- 
         
         
-        FlowExecutor flowExecutor = FlowExecutors.create();
+        FlowExecutor flowExecutor = FlowExecutors.createDefault();
         flowExecutor.execute(flow);
     }
 }

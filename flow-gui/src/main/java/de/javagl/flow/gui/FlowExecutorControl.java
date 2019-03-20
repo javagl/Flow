@@ -74,7 +74,19 @@ final class FlowExecutorControl
      */
     void executeFlow()
     {
-        flowExecutor = FlowExecutors.create();
+        flowExecutor = FlowExecutors.createDefault();
+        flowExecutor.addFlowExecutorListener(new LoggingFlowExecutorListener());
+        flowExecutor.execute(flowWorkspace.getFlow());
+        flowExecutor = null;
+    }
+    
+    /**
+     * Execute the flow from the current {@link FlowWorkspace},
+     * blocking the calling thread until the execution completed
+     */
+    void executeFlowResponsive()
+    {
+        flowExecutor = FlowExecutors.createResponsive();
         flowExecutor.addFlowExecutorListener(new LoggingFlowExecutorListener());
         flowExecutor.execute(flowWorkspace.getFlow());
         flowExecutor = null;

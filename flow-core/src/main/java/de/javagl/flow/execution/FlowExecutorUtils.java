@@ -34,7 +34,15 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import de.javagl.flow.module.Module;
 import de.javagl.flow.module.ModuleUtils;
@@ -44,6 +52,12 @@ import de.javagl.flow.module.ModuleUtils;
  */
 class FlowExecutorUtils
 {
+    /**
+     * The logger used in this class
+     */
+    private static final Logger logger = 
+        Logger.getLogger(FlowExecutorUtils.class.getName());
+    
     /**
      * Create a list containing one callable object for each {@link Module} 
      * of the given sequence, where the callable will call the 
@@ -130,7 +144,8 @@ class FlowExecutorUtils
      * Compute a list of execution sets from the given {@link Module} 
      * collection. The first set will contain all modules that do not 
      * require any inputs. Each subsequent set will contain all modules 
-     * whose predecessors have been contained in any of the previous sets.
+     * whose predecessors have either been contained in any of the previous 
+     * sets, or not been part of the given input collection at all. 
      * 
      * @param modules The input {@link Module} collection
      * @return The execution sets
@@ -138,6 +153,7 @@ class FlowExecutorUtils
     static List<Set<Module>> computeExecutionSets(
         Collection<? extends Module> modules)
     {
+        Set<Module> allModules = new LinkedHashSet<Module>(modules);
         List<Set<Module>> sets = new ArrayList<Set<Module>>();
         Set<Module> rootModules = computeRootModules(modules);
         sets.add(rootModules);
@@ -146,14 +162,22 @@ class FlowExecutorUtils
         Set<Module> processed = new LinkedHashSet<Module>();
         processed.addAll(rootModules);
         
+        //log(Level.INFO, "Root modules", rootModules);
+
         while (!remaining.isEmpty())
         {
+            //log(Level.INFO, "Remaining modules", remaining);
+            //log(Level.INFO, "Processed modules", processed);
+
             Set<Module> set = new LinkedHashSet<Module>();
             for (Module module : remaining)
             {
                 Set<Module> predecessors = 
                     ModuleUtils.computePredecessors(module);
-                if (processed.containsAll(predecessors))
+                Set<Module> currentPrececessors = 
+                    new LinkedHashSet<Module>(predecessors);
+                currentPrececessors.retainAll(allModules);
+                if (processed.containsAll(currentPrececessors))
                 {
                     set.add(module);
                 }
@@ -163,6 +187,86 @@ class FlowExecutorUtils
             remaining.removeAll(set);
         }
         return sets;
+    }
+    
+    /**
+     * Execute the given callables. If one of them throws an ExecutionException,
+     * the remaining ones are cancelled.
+     * 
+     * @param executorService The executor service 
+     * @param callables The callables
+     * @return The first exception that was caused, or 
+     * <code>null</code> if the execution finished normally
+     * @throws InterruptedException If the thread was interrupted
+     */
+    static Exception executeAll(
+        ExecutorService executorService, 
+        Collection<Callable<Object>> callables) 
+        throws InterruptedException
+    {
+        CompletionService<Object> completionService =
+            new ExecutorCompletionService<Object>(executorService);
+        int n = callables.size();
+        List<Future<Object>> futures = new ArrayList<Future<Object>>(n);
+        Exception caughtException = null;
+        try
+        {
+            for (Callable<Object> callable : callables)
+            {
+                futures.add(completionService.submit(callable));
+            }
+            for (int i = 0; i < n; ++i)
+            {
+                try
+                {
+                    Future<Object> future = completionService.take();
+                    future.get();
+                } 
+                catch (ExecutionException e)
+                {
+                    logger.fine("Exception during execution: " + e);
+                    caughtException = e;
+                    break;
+                }
+            }
+        } 
+        catch (RejectedExecutionException e)
+        {
+            // This should not happen: When the executor is shut down,
+            // then no more executions should be scheduled
+            logger.severe("Cannot schedule execution: " + e);
+            caughtException = e;
+        }
+        finally
+        {
+            if (caughtException != null)
+            {
+                logger.info("Canceling execution of remaining tasks");
+                for (Future<Object> f : futures)
+                {
+                    f.cancel(true);
+                }
+            }
+        }
+        return caughtException;
+    }    
+    
+    
+    /**
+     * Log the give message and the string representations of the given modules
+     * 
+     * @param level The level 
+     * @param message The message
+     * @param modules The modules
+     */
+    static void log(
+        Level level, String message, Iterable<? extends Module> modules)
+    {
+        logger.log(level, message);
+        for (Module module : modules)
+        {
+            logger.log(level, "    " + module);
+        }
     }
     
     /**

@@ -38,7 +38,11 @@ import de.javagl.flow.module.Module;
 public interface FlowExecutor
 {
     /**
-     * Execute the {@link Module} instances in the given {@link Flow}
+     * Execute the {@link Module} instances in the given {@link Flow}.
+     * This call will block until the execution is completed. Depending
+     * on the exact implementation, this may either mean that the
+     * execution finished normally, or it was finished explicitly by
+     * calling {@link #finishExecution(long, TimeUnit)}.
      * 
      * @param flow The {@link Flow}
      */

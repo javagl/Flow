@@ -50,6 +50,11 @@ class FlowExecutorControlPanel extends JPanel
     private JButton executeFlowButton;
     
     /**
+     * The button to execute the {@link Flow}
+     */
+    private JButton executeFlowResponsiveButton;
+    
+    /**
      * The button to cancel an ongoing execution
      */
     private JButton cancelButton;
@@ -78,6 +83,12 @@ class FlowExecutorControlPanel extends JPanel
         executeFlowButton.addActionListener(e -> executeFlow());
         controlPanel.add(executeFlowButton);
         
+        executeFlowResponsiveButton = new JButton("Execute flow responsive");
+        executeFlowResponsiveButton.setEnabled(false);
+        executeFlowResponsiveButton.addActionListener(
+            e -> executeFlowResponsive());
+        controlPanel.add(executeFlowResponsiveButton);
+        
         cancelButton = new JButton("Cancel");
         cancelButton.setEnabled(false);
         cancelButton.addActionListener(e -> cancel());
@@ -97,10 +108,12 @@ class FlowExecutorControlPanel extends JPanel
         if (flowExecutorControl == null)
         {
             executeFlowButton.setEnabled(false);
+            executeFlowResponsiveButton.setEnabled(false);
         }
         else
         {
             executeFlowButton.setEnabled(true);
+            executeFlowResponsiveButton.setEnabled(true);
         }
     }
 
@@ -111,6 +124,7 @@ class FlowExecutorControlPanel extends JPanel
     private void executeFlow()
     {
         executeFlowButton.setEnabled(false);
+        executeFlowResponsiveButton.setEnabled(false);
         cancelButton.setEnabled(true);
         class FlowExecutorWorker extends SwingWorker<Void, Void>
         {
@@ -125,12 +139,44 @@ class FlowExecutorControlPanel extends JPanel
             protected void done()
             {
                 executeFlowButton.setEnabled(true);
+                executeFlowResponsiveButton.setEnabled(true);
                 cancelButton.setEnabled(false);
             }
         }
         FlowExecutorWorker flowExecutorWorker = new FlowExecutorWorker();
         flowExecutorWorker.execute();
     }
+    
+    /**
+     * Calls {@link FlowExecutorControl#executeFlowResponsive()}, in a 
+     * background thread
+     */
+    private void executeFlowResponsive()
+    {
+        executeFlowButton.setEnabled(false);
+        executeFlowResponsiveButton.setEnabled(false);
+        cancelButton.setEnabled(true);
+        class FlowExecutorWorker extends SwingWorker<Void, Void>
+        {
+            @Override
+            public Void doInBackground()
+            {
+                flowExecutorControl.executeFlowResponsive();
+                return null;
+            }
+
+            @Override
+            protected void done()
+            {
+                executeFlowButton.setEnabled(true);
+                executeFlowResponsiveButton.setEnabled(true);
+                cancelButton.setEnabled(false);
+            }
+        }
+        FlowExecutorWorker flowExecutorWorker = new FlowExecutorWorker();
+        flowExecutorWorker.execute();
+    }
+    
     
     /**
      * Calls {@link FlowExecutorControl#cancelExecution()}, in a background
@@ -152,6 +198,7 @@ class FlowExecutorControlPanel extends JPanel
             protected void done()
             {
                 executeFlowButton.setEnabled(true);
+                executeFlowResponsiveButton.setEnabled(true);
                 cancelButton.setEnabled(false);
             }
         }

@@ -36,7 +36,9 @@ package de.javagl.flow.execution;
  * was cancelled or terminated with an error. Additionally, there
  * may be intermediate events, indicating that one module or a
  * set of modules has been executed. This might cause some overlap
- * with the ModuleExecutionListener interface. 
+ * with the ModuleExecutionListener interface. This might also
+ * affect the semantics of the "cancelled" flag in the 
+ * {@link FlowExecutorEvent} class.
  */
 public interface FlowExecutorListener
 {
