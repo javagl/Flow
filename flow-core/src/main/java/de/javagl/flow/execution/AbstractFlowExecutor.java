@@ -63,7 +63,7 @@ abstract class AbstractFlowExecutor implements FlowExecutor
         if (!flowExecutorListeners.isEmpty())
         {
             FlowExecutorEvent flowExecutorEvent = 
-                new FlowExecutorEvent(this, flow, null);
+                new FlowExecutorEvent(this, flow, false, null);
             for (FlowExecutorListener listener : flowExecutorListeners)
             {
                 listener.beforeExecution(flowExecutorEvent);
@@ -76,17 +76,18 @@ abstract class AbstractFlowExecutor implements FlowExecutor
      * the given {@link Flow} was executed
      * 
      * @param flow The {@link Flow}
+     * @param cancelled Whether the execution was cancelled
      * @param errors The optional collection of errors that have been caused.
      * This may be <code>null</code> or an empty collection if the execution
      * completed normally
      */
     protected final void fireAfterExecution(
-        Flow flow, Collection<? extends Throwable> errors)
+        Flow flow, boolean cancelled, Collection<? extends Throwable> errors)
     {
         if (!flowExecutorListeners.isEmpty())
         {
             FlowExecutorEvent flowExecutorEvent = 
-                new FlowExecutorEvent(this, flow, errors);
+                new FlowExecutorEvent(this, flow, cancelled, errors);
             for (FlowExecutorListener listener : flowExecutorListeners)
             {
                 listener.afterExecution(flowExecutorEvent);

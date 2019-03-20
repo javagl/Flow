@@ -85,14 +85,6 @@ class DefaultFlowExecutor extends AbstractFlowExecutor implements FlowExecutor
         
         Set<Module> modules = flow.getModules();
         Exception error = execute(modules);
-        if (error != null)
-        {
-            logger.warning("Executing flow caused an error: " + error);
-        }
-        else
-        {
-            logger.log(level, "Executing flow DONE");
-        }
         
         executorService.shutdown();
         try
@@ -117,9 +109,18 @@ class DefaultFlowExecutor extends AbstractFlowExecutor implements FlowExecutor
         Collection<Throwable> errors = null;
         if (error != null)
         {
+            logger.warning("Executing flow DONE, error: " + error);
             errors = Collections.singleton(error);
         }
-        fireAfterExecution(flow, errors);
+        else if (cancelled)
+        {
+            logger.warning("Executing flow DONE, but cancelled");
+        }
+        else 
+        {
+            logger.warning("Executing flow DONE");
+        }
+        fireAfterExecution(flow, cancelled, errors);
     }
 
     @Override
@@ -132,6 +133,7 @@ class DefaultFlowExecutor extends AbstractFlowExecutor implements FlowExecutor
         cancelled = true;
         executorService.shutdown();
         
+        // First, try to wait if the execution terminates normally
         logger.log(level, "Waiting for up to " + timeout + " " + unit
             + " for the execution to complete...");
         long beforeNs = System.nanoTime();
@@ -147,6 +149,7 @@ class DefaultFlowExecutor extends AbstractFlowExecutor implements FlowExecutor
             return e;
         }
         
+        // If the execution terminated normally, everything is fine
         if (executorService.isTerminated())
         {
             long afterNs = System.nanoTime();
@@ -156,6 +159,7 @@ class DefaultFlowExecutor extends AbstractFlowExecutor implements FlowExecutor
             return null;
         }
 
+        // Try to force the execution to finish, and wait once more
         logger.log(level, "Timeout of " + timeout + " " + unit
             + " passed, shutting down NOW");
         executorService.shutdownNow();
@@ -171,12 +175,16 @@ class DefaultFlowExecutor extends AbstractFlowExecutor implements FlowExecutor
             Thread.currentThread().interrupt();
             return e;
         }
+        
+        // That was close. But managed to shut down normally.
         if (success)
         {
             logger.log(level, "Terminated after forced shutdown within " 
                 + timeout + " " + unit);
             return null;
         }
+        
+        // Shutting down failed
         return new TimeoutException(
             "Could not shut down within " + timeout + " " + unit);
     }
@@ -188,9 +196,7 @@ class DefaultFlowExecutor extends AbstractFlowExecutor implements FlowExecutor
      * @return The first exception that was caused, or <code>null</code> if
      * the execution finished normally. The returned exception will usually
      * be an <code>ExecutionException</code> or an 
-     * <code>InterruptedException</code>, or a 
-     * <code>RejectedExecutionException</code> if the execution was
-     * cancelled
+     * <code>InterruptedException</code>
      */
     private Exception execute(Collection<? extends Module> modules)
     {
@@ -206,7 +212,7 @@ class DefaultFlowExecutor extends AbstractFlowExecutor implements FlowExecutor
             Exception error = executeAll(executionSet);
             if (error != null)
             {
-                log("Executing failed: " + error, executionSet);
+                logger.fine("Executing failed: " + error);
                 return error;
             }
             log("Executing DONE", executionSet);
@@ -238,9 +244,7 @@ class DefaultFlowExecutor extends AbstractFlowExecutor implements FlowExecutor
      * @return The first exception that was caused, or <code>null</code> if
      * the execution finished normally. The returned exception will usually
      * be an <code>ExecutionException</code> or an 
-     * <code>InterruptedException</code>, or a 
-     * <code>RejectedExecutionException</code> if the execution was
-     * cancelled
+     * <code>InterruptedException</code>
      */
     private Exception executeAll(Iterable<? extends Module> modules)
     {
@@ -292,7 +296,7 @@ class DefaultFlowExecutor extends AbstractFlowExecutor implements FlowExecutor
                 } 
                 catch (ExecutionException e)
                 {
-                    logger.severe("Exception during module execution: " + e);
+                    logger.fine("Exception during module execution: " + e);
                     caughtException = e;
                     break;
                 }
@@ -300,6 +304,9 @@ class DefaultFlowExecutor extends AbstractFlowExecutor implements FlowExecutor
         } 
         catch (RejectedExecutionException e)
         {
+            // This should not happen: When the executor is shut down,
+            // then #cancelled should be set to "true", and no more
+            // executions should be scheduled
             logger.severe("Cannot schedule module execution: " + e);
             caughtException = e;
         }
@@ -307,7 +314,7 @@ class DefaultFlowExecutor extends AbstractFlowExecutor implements FlowExecutor
         {
             if (caughtException != null)
             {
-                logger.severe("Canceling execution of remaining modules");
+                logger.info("Canceling execution of remaining modules");
                 for (Future<Object> f : futures)
                 {
                     f.cancel(true);

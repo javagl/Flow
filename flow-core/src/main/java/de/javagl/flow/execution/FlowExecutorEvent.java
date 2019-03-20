@@ -56,22 +56,29 @@ public final class FlowExecutorEvent extends EventObject
     private final List<Throwable> errors;
     
     /**
+     * Whether the execution was cancelled
+     */
+    private final boolean cancelled;
+    
+    /**
      * Creates a new event for the given {@link FlowExecutor}
      * 
      * @param flowExecutor The {@link FlowExecutor} from which this event 
      * originated
      * @param flow The {@link Flow} that is executed
+     * @param cancelled Whether the execution was cancelled
      * @param errors The errors that have been caused by the execution.
      * An unmodifiable copy of the given collection will be stored 
      * internally (or an empty list, of the given collection is 
      * <code>null</code>)
      */
-    FlowExecutorEvent(FlowExecutor flowExecutor, Flow flow, 
+    FlowExecutorEvent(FlowExecutor flowExecutor, Flow flow, boolean cancelled, 
         Collection<? extends Throwable> errors)
     {
         super(flowExecutor);
         this.flowExecutor = flowExecutor;
         this.flow = flow;
+        this.cancelled = cancelled;
         if (errors == null)
         {
             this.errors = Collections.emptyList();
@@ -114,6 +121,16 @@ public final class FlowExecutorEvent extends EventObject
     public List<Throwable> getErrors()
     {
         return errors;
+    }
+    
+    /**
+     * Returns whether the execution was cancelled
+     * 
+     * @return Whether the execution was cancelled
+     */
+    public boolean isCancelled()
+    {
+        return cancelled;
     }
     
 }

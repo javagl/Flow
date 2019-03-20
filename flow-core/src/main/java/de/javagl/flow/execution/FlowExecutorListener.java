@@ -29,6 +29,14 @@ package de.javagl.flow.execution;
 /**
  * Interface for classes that want to be informed about the execution
  * progress of a {@link FlowExecutor}.
+ * 
+ * TODO: The FlowExecutorListener interface might have to become more 
+ * fine-grained. For example, there might be dedicated methods in
+ * addition to "afterExecution", indicating whether the execution
+ * was cancelled or terminated with an error. Additionally, there
+ * may be intermediate events, indicating that one module or a
+ * set of modules has been executed. This might cause some overlap
+ * with the ModuleExecutionListener interface. 
  */
 public interface FlowExecutorListener
 {

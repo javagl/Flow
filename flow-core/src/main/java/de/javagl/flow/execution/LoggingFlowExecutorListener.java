@@ -78,7 +78,8 @@ public final class LoggingFlowExecutorListener
     public void afterExecution(FlowExecutorEvent flowExecutorEvent)
     {
         logger.log(level, "afterExecution   "
-            + flowExecutorEvent.getFlow() + ", " 
+            + flowExecutorEvent.getFlow() + ", "
+            + "cancelled: " + flowExecutorEvent.isCancelled() + ", "
             + "errors: " + flowExecutorEvent.getErrors());
     }
 
