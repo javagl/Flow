@@ -26,6 +26,7 @@
  */
 package de.javagl.flow.execution;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -62,7 +63,7 @@ abstract class AbstractFlowExecutor implements FlowExecutor
         if (!flowExecutorListeners.isEmpty())
         {
             FlowExecutorEvent flowExecutorEvent = 
-                new FlowExecutorEvent(this, flow);
+                new FlowExecutorEvent(this, flow, null);
             for (FlowExecutorListener listener : flowExecutorListeners)
             {
                 listener.beforeExecution(flowExecutorEvent);
@@ -75,13 +76,17 @@ abstract class AbstractFlowExecutor implements FlowExecutor
      * the given {@link Flow} was executed
      * 
      * @param flow The {@link Flow}
+     * @param errors The optional collection of errors that have been caused.
+     * This may be <code>null</code> or an empty collection if the execution
+     * completed normally
      */
-    protected final void fireAfterExecution(Flow flow)
+    protected final void fireAfterExecution(
+        Flow flow, Collection<? extends Throwable> errors)
     {
         if (!flowExecutorListeners.isEmpty())
         {
             FlowExecutorEvent flowExecutorEvent = 
-                new FlowExecutorEvent(this, flow);
+                new FlowExecutorEvent(this, flow, errors);
             for (FlowExecutorListener listener : flowExecutorListeners)
             {
                 listener.afterExecution(flowExecutorEvent);

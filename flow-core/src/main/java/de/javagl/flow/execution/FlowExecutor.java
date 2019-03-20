@@ -46,13 +46,19 @@ public interface FlowExecutor
     
     /**
      * Finish the current execution, waiting for up to the specified time
-     * if necessary.
+     * if necessary. If the execution does not finish within the specified
+     * time, then a best-effort attempt is made to cancel the execution,
+     * and the method again waits for the specified time. If the execution
+     * still does not finish, then an error is returned indicating this 
+     * failure.
      * 
      * @param timeout The timeout
      * @param unit The time unit
-     * @return Whether the execution completed normally
+     * @return The exception that was caused during the execution, or
+     * an <code>InterruptedException</code> exception indicating that the execution could not be finished,
+     * or <code>null</code> if the execution finished normally
      */
-    boolean finishExecution(long timeout, TimeUnit unit);
+    Exception finishExecution(long timeout, TimeUnit unit);
     
     /**
      * Add the given {@link FlowExecutorListener} to be informed about

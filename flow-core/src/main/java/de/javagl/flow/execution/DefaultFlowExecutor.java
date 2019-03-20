@@ -28,6 +28,7 @@ package de.javagl.flow.execution;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -37,7 +38,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -64,22 +67,27 @@ class DefaultFlowExecutor extends AbstractFlowExecutor implements FlowExecutor
      * The executor service for the current call to {@link #execute(Flow)}
      */
     private ExecutorService executorService;
+    
+    /**
+     * Whether the execution should be cancelled
+     */
+    private volatile boolean cancelled;
 
     @Override
     public void execute(Flow flow)
     {
         logger.log(level, "Executing flow");
+        cancelled = false;
         fireBeforeExecution(flow);
 
         executorService = 
             ExecutorExtensions.newExceptionAwareCachedThreadPool();
-        FlowExecutorUtils.startWatchdog(executorService);
         
         Set<Module> modules = flow.getModules();
-        boolean done = execute(modules);
-        if (!done)
+        Exception error = execute(modules);
+        if (error != null)
         {
-            logger.warning("Executing flow caused an error");
+            logger.warning("Executing flow caused an error: " + error);
         }
         else
         {
@@ -101,17 +109,27 @@ class DefaultFlowExecutor extends AbstractFlowExecutor implements FlowExecutor
             logger.warning(
                 "Interrupted while waiting for execution to complete. " + e);
             Thread.currentThread().interrupt();
+            if (error == null)
+            {
+                error = e;
+            }
         }
-        fireAfterExecution(flow);
+        Collection<Throwable> errors = null;
+        if (error != null)
+        {
+            errors = Collections.singleton(error);
+        }
+        fireAfterExecution(flow, errors);
     }
 
     @Override
-    public boolean finishExecution(long timeout, TimeUnit unit)
+    public Exception finishExecution(long timeout, TimeUnit unit)
     {
         if (executorService == null)
         {
-            return true;
+            return null;
         }
+        cancelled = true;
         executorService.shutdown();
         
         logger.log(level, "Waiting for up to " + timeout + " " + unit
@@ -126,48 +144,74 @@ class DefaultFlowExecutor extends AbstractFlowExecutor implements FlowExecutor
             logger.warning(
                 "Interrupted while waiting for execution to complete. " + e);
             Thread.currentThread().interrupt();
-            return false;
+            return e;
         }
+        
         if (executorService.isTerminated())
         {
             long afterNs = System.nanoTime();
             double seconds = (afterNs - beforeNs) * 1e-9;
             logger.log(level, String.format(Locale.ENGLISH, 
                 "Execution completed after %.2f seconds", seconds));
-            return true;
+            return null;
         }
-        else
+
+        logger.log(level, "Timeout of " + timeout + " " + unit
+            + " passed, shutting down NOW");
+        executorService.shutdownNow();
+        boolean success = false;
+        try
         {
-            logger.log(level, "Timeout of " + timeout + " " + unit
-                + " passed, shutting down NOW");
-            executorService.shutdownNow();
-            return false;
+            success = executorService.awaitTermination(timeout, unit);
+        } 
+        catch (InterruptedException e)
+        {
+            logger.warning(
+                "Interrupted while waiting for execution to finish. " + e);
+            Thread.currentThread().interrupt();
+            return e;
         }
+        if (success)
+        {
+            logger.log(level, "Terminated after forced shutdown within " 
+                + timeout + " " + unit);
+            return null;
+        }
+        return new TimeoutException(
+            "Could not shut down within " + timeout + " " + unit);
     }
     
     /**
      * Execute the given collection of {@link Module} instances
      * 
      * @param modules The {@link Module} instances
-     * @return Whether the execution completed normally
+     * @return The first exception that was caused, or <code>null</code> if
+     * the execution finished normally. The returned exception will usually
+     * be an <code>ExecutionException</code> or an 
+     * <code>InterruptedException</code>, or a 
+     * <code>RejectedExecutionException</code> if the execution was
+     * cancelled
      */
-    private boolean execute(Collection<? extends Module> modules)
+    private Exception execute(Collection<? extends Module> modules)
     {
         List<Set<Module>> executionSets = 
             FlowExecutorUtils.computeExecutionSets(modules);
         for (Set<Module> executionSet : executionSets)
         {
-            log("Executing ", executionSet);
-            
-            boolean done = executeAll(executionSet);
-            if (!done)
+            if (cancelled)
             {
-                return false;
+                return null;
             }
-            
+            log("Executing ", executionSet);
+            Exception error = executeAll(executionSet);
+            if (error != null)
+            {
+                log("Executing failed: " + error, executionSet);
+                return error;
+            }
             log("Executing DONE", executionSet);
         }
-        return true;
+        return null;
     }
 
     /**
@@ -191,9 +235,14 @@ class DefaultFlowExecutor extends AbstractFlowExecutor implements FlowExecutor
      * calling their {@link Module#execute()} methods.
      * 
      * @param modules The {@link Module} instances
-     * @return Whether the execution completed normally
+     * @return The first exception that was caused, or <code>null</code> if
+     * the execution finished normally. The returned exception will usually
+     * be an <code>ExecutionException</code> or an 
+     * <code>InterruptedException</code>, or a 
+     * <code>RejectedExecutionException</code> if the execution was
+     * cancelled
      */
-    private boolean executeAll(Iterable<? extends Module> modules)
+    private Exception executeAll(Iterable<? extends Module> modules)
     {
         try
         {
@@ -206,7 +255,7 @@ class DefaultFlowExecutor extends AbstractFlowExecutor implements FlowExecutor
             logger.severe(
                 "Interrupted while invoking module execution tasks");
             Thread.currentThread().interrupt();
-            return false;
+            return e;
         }
     }
     
@@ -215,17 +264,19 @@ class DefaultFlowExecutor extends AbstractFlowExecutor implements FlowExecutor
      * the remaining ones are cancelled.
      * 
      * @param callables The callables
-     * @return Whether the execution completed normally
+     * @return The first exception that was caused, or 
+     * <code>null</code> if the execution finished normally
      * @throws InterruptedException If the thread was interrupted
      */
-    private boolean executeAll(Collection<Callable<Object>> callables) 
+    private Exception executeAll(
+        Collection<Callable<Object>> callables) 
         throws InterruptedException
     {
         CompletionService<Object> completionService =
             new ExecutorCompletionService<Object>(executorService);
         int n = callables.size();
         List<Future<Object>> futures = new ArrayList<Future<Object>>(n);
-        boolean caughtException = false;
+        Exception caughtException = null;
         try
         {
             for (Callable<Object> callable : callables)
@@ -241,15 +292,20 @@ class DefaultFlowExecutor extends AbstractFlowExecutor implements FlowExecutor
                 } 
                 catch (ExecutionException e)
                 {
-                    logger.severe("Exception during module execution");
-                    caughtException = true;
+                    logger.severe("Exception during module execution: " + e);
+                    caughtException = e;
                     break;
                 }
             }
         } 
+        catch (RejectedExecutionException e)
+        {
+            logger.severe("Cannot schedule module execution: " + e);
+            caughtException = e;
+        }
         finally
         {
-            if (caughtException)
+            if (caughtException != null)
             {
                 logger.severe("Canceling execution of remaining modules");
                 for (Future<Object> f : futures)
@@ -258,7 +314,7 @@ class DefaultFlowExecutor extends AbstractFlowExecutor implements FlowExecutor
                 }
             }
         }
-        return !caughtException;
+        return caughtException;
     }    
     
 }

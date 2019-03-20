@@ -27,6 +27,8 @@
 package de.javagl.flow.gui;
 
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import de.javagl.flow.Flow;
 import de.javagl.flow.execution.FlowExecutor;
@@ -40,6 +42,12 @@ import de.javagl.flow.workspace.FlowWorkspace;
  */
 final class FlowExecutorControl
 {
+    /**
+     * The logger used in this class
+     */
+    private static final Logger logger = 
+        Logger.getLogger(FlowExecutorControl.class.getName());
+    
     /**
      * The {@link FlowWorkspace} on which this control operates
      */
@@ -79,7 +87,12 @@ final class FlowExecutorControl
     {
         if (flowExecutor != null)
         {
-            flowExecutor.finishExecution(100, TimeUnit.MILLISECONDS);
+            Exception error = flowExecutor.finishExecution(
+                100, TimeUnit.MILLISECONDS);
+            if (error != null)
+            {
+                logger.log(Level.WARNING, "Warning: " + error, error);
+            }
             flowExecutor = null;
         }
     }

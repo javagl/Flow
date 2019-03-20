@@ -102,7 +102,7 @@ class FlowExecutorUtils
                 catch (Throwable t)
                 {
                     RuntimeException r = new RuntimeException(
-                        "Error in module " + module, t);
+                        "Error in module " + module + ": " + t, t);
                     throw r;
                 }
             }
@@ -182,6 +182,8 @@ class FlowExecutorUtils
     }
     
     
+    // TODO This is no longer used. The execution can now be cancelled.
+    // This method will be removed soon.
     /**
      * Starts a watchdog thread that waits for the termination of the given
      * executor service, for an unspecified time. If the executor service
@@ -189,7 +191,7 @@ class FlowExecutorUtils
      * 
      * @param executorService The executor service
      */
-    static void startWatchdog(ExecutorService executorService)
+    private static void startWatchdog(ExecutorService executorService)
     {
         Thread thread = new Thread(() -> runWatchdog(executorService));
         thread.setPriority(Thread.MIN_PRIORITY);

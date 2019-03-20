@@ -26,7 +26,11 @@
  */
 package de.javagl.flow.execution;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.EventObject;
+import java.util.List;
 
 import de.javagl.flow.Flow;
 
@@ -47,28 +51,36 @@ public final class FlowExecutorEvent extends EventObject
     private final Flow flow;
     
     /**
-     * Creates a new event for the given {@link FlowExecutor}
-     * 
-     * @param flowExecutor The {@link FlowExecutor} from which this event 
-     * originated
+     * The list of errors that have been caused by the execution
      */
-    FlowExecutorEvent(FlowExecutor flowExecutor)
-    {
-        this(flowExecutor, null);
-    }
-
+    private final List<Throwable> errors;
+    
     /**
      * Creates a new event for the given {@link FlowExecutor}
      * 
      * @param flowExecutor The {@link FlowExecutor} from which this event 
      * originated
      * @param flow The {@link Flow} that is executed
+     * @param errors The errors that have been caused by the execution.
+     * An unmodifiable copy of the given collection will be stored 
+     * internally (or an empty list, of the given collection is 
+     * <code>null</code>)
      */
-    FlowExecutorEvent(FlowExecutor flowExecutor, Flow flow)
+    FlowExecutorEvent(FlowExecutor flowExecutor, Flow flow, 
+        Collection<? extends Throwable> errors)
     {
         super(flowExecutor);
         this.flowExecutor = flowExecutor;
         this.flow = flow;
+        if (errors == null)
+        {
+            this.errors = Collections.emptyList();
+        }
+        else
+        {
+            this.errors = Collections.unmodifiableList(
+                new ArrayList<Throwable>(errors));
+        }
     }
     
     /**
@@ -89,6 +101,19 @@ public final class FlowExecutorEvent extends EventObject
     public Flow getFlow()
     {
         return flow;
+    }
+    
+    /**
+     * Returns an unmodifiable list of errors that happened during the
+     * execution. This will never be <code>null</code>, but may be 
+     * an empty list, if this event indicates the start of the execution,
+     * or no errors have been caused during the execution.
+     * 
+     * @return The errors
+     */
+    public List<Throwable> getErrors()
+    {
+        return errors;
     }
     
 }
