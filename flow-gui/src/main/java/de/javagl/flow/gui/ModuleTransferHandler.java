@@ -113,11 +113,8 @@ final class ModuleTransferHandler extends TransferHandler
             Module module = moduleCreator.createModule();
             return new TransferableModule(module);
         }
-        else
-        {
-            // Not severe. Just pressed an inner node.
-            //logger.severe("User object is no ModuleCreator!");
-        }
+        // Not severe. Just pressed an inner node.
+        //logger.severe("User object is no ModuleCreator!");
         return null;
     }
 
