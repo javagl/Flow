@@ -55,8 +55,9 @@ public interface FlowExecutor
      * @param timeout The timeout
      * @param unit The time unit
      * @return The exception that was caused during the execution, or
-     * an <code>InterruptedException</code> exception indicating that the execution could not be finished,
-     * or <code>null</code> if the execution finished normally
+     * an <code>InterruptedException</code> exception indicating that 
+     * the execution could not be finished, or <code>null</code> if 
+     * the execution finished normally
      */
     Exception finishExecution(long timeout, TimeUnit unit);
     
