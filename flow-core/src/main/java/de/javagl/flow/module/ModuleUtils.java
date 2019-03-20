@@ -27,6 +27,7 @@
 package de.javagl.flow.module;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -47,7 +48,7 @@ import de.javagl.flow.module.slot.OutputSlot;
 public class ModuleUtils
 {
     /**
-     * Return an unmodifiable set containing the successors of the given
+     * Return an unmodifiable set containing the direct successors of the given
      * {@link Module}. That is, a set that contains all {@link Module} objects
      * that are at the end of a {@link Link} that is attached to one
      * {@link OutputSlot} of the given {@link Module}
@@ -70,9 +71,9 @@ public class ModuleUtils
         }
         return Collections.unmodifiableSet(successors);
     }
-
+    
     /**
-     * Return an unmodifiable set containing the successors of the given
+     * Return an unmodifiable set containing the direct successors of the given
      * {@link Module} objects. That is, a set that contains all {@link Module} 
      * objects that are at the end of a {@link Link} that is attached to one
      * {@link OutputSlot} of one of the given {@link Module} objects
@@ -90,11 +91,47 @@ public class ModuleUtils
         }
         return Collections.unmodifiableSet(successors);
     }
+    
+    /**
+     * Return an unmodifiable set containing all (direct and indirect) 
+     * successors of the given {@link Module}. That is, a set that contains 
+     * all {@link Module} objects that are at the end of a {@link Link} 
+     * that is attached to one {@link OutputSlot} of the given {@link Module}, 
+     * and all successors of these modules.
+     * 
+     * @param module The {@link Module}
+     * @return The set of all successors
+     */
+    public static Set<Module> computeAllSuccessors(Module module)
+    {
+        Set<Module> allSuccessors = new LinkedHashSet<Module>();
+        computeAllSuccessors(Collections.singleton(module), allSuccessors);
+        return allSuccessors;
+    }
+    
+    /**
+     * Recursively compute all successors of the given collection of 
+     * {@link Module} objects
+     * 
+     * @param modules The {@link Module} objects
+     * @param result The collection that will store the result
+     */
+    private static void computeAllSuccessors(
+        Iterable<? extends Module> modules, Collection<Module> result)
+    {
+        for (Module module : modules)
+        {
+            Set<Module> successors = computeSuccessors(module);
+            result.addAll(successors);
+            computeAllSuccessors(successors, result);
+        }
+    }
+    
 
     /**
-     * Return an unmodifiable set containing the predecessors of the given
-     * {@link Module}. That is, a set that contains all {@link Module} objects
-     * that are at the start of a {@link Link} that is attached to one
+     * Return an unmodifiable set containing the direct predecessors of the 
+     * given {@link Module}. That is, a set that contains all {@link Module} 
+     * objects that are at the start of a {@link Link} that is attached to one
      * {@link InputSlot} of the given {@link Module}
      * 
      * @param module The {@link Module}
@@ -115,10 +152,11 @@ public class ModuleUtils
     }
 
     /**
-     * Return an unmodifiable set containing the predecessors of the given
-     * {@link Module} objects. That is, a set that contains all {@link Module} 
-     * objects that are at the start of a {@link Link} that is attached to one
-     * {@link InputSlot} of one of the given {@link Module} objects
+     * Return an unmodifiable set containing the direct predecessors of the 
+     * given {@link Module} objects. That is, a set that contains all 
+     * {@link Module} objects that are at the start of a {@link Link} that 
+     * is attached to one {@link InputSlot} of one of the given {@link Module} 
+     * objects
      * 
      * @param modules The {@link Module}
      * @return The set of predecessors
@@ -134,6 +172,41 @@ public class ModuleUtils
         return Collections.unmodifiableSet(predecessors);
     }
 
+    /**
+     * Return an unmodifiable set containing all (direct and indirect) 
+     * predecessors of the given {@link Module}. That is, a set that contains 
+     * all {@link Module} objects that are at the start of a {@link Link} 
+     * that is attached to one {@link InputSlot} of the given {@link Module}, 
+     * and all predecessors of these modules.
+     * 
+     * @param module The {@link Module}
+     * @return The set of all successors
+     */
+    public static Set<Module> computeAllPredecessors(Module module)
+    {
+        Set<Module> allPredecessors = new LinkedHashSet<Module>();
+        computeAllPredecessors(Collections.singleton(module), allPredecessors);
+        return allPredecessors;
+    }
+    
+    /**
+     * Recursively compute all predecessors of the given collection of 
+     * {@link Module} objects
+     * 
+     * @param modules The {@link Module} objects
+     * @param result The collection that will store the result
+     */
+    private static void computeAllPredecessors(
+        Iterable<? extends Module> modules, Collection<Module> result)
+    {
+        for (Module module : modules)
+        {
+            Set<Module> predecessors = computePredecessors(module);
+            result.addAll(predecessors);
+            computeAllPredecessors(predecessors, result);
+        }
+    }
+    
     /**
      * Returns an unmodifiable set containing all {@link Link} objects that
      * are connected to the given {@link Module}
