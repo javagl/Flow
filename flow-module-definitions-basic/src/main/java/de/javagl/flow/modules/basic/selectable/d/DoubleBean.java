@@ -3,20 +3,20 @@
  *
  * Copyright (c) 2012-2017 Marco Hutter - http://www.javagl.de
  */ 
-package de.javagl.flow.modules.basic.selectable.f;
+package de.javagl.flow.modules.basic.selectable.d;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
 /**
- * A Java Bean only containing a Float value
+ * A Java Bean only containing a Double value
  */
-public final class FloatBean
+public final class DoubleBean
 {
     /**
      * The value
      */
-    private Float value = 0.0f;
+    private Double value = 0.0;
     
     /**
      * The property change support
@@ -26,7 +26,7 @@ public final class FloatBean
     /**
      * Default constructor
      */
-    public FloatBean()
+    public DoubleBean()
     {
         this.propertyChangeSupport = new PropertyChangeSupport(this);
     }
@@ -36,7 +36,7 @@ public final class FloatBean
      * 
      * @param value The value
      */
-    public void setValue(Float value)
+    public void setValue(Double value)
     {
         propertyChangeSupport.firePropertyChange(
             "value", this.value, this.value = value);        
@@ -47,7 +47,7 @@ public final class FloatBean
      * 
      * @return The value
      */
-    public Float getValue()
+    public Double getValue()
     {
         return value;
     }

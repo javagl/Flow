@@ -5,9 +5,11 @@
  */ 
 package de.javagl.flow.modules.basic.selectable;
 
+import de.javagl.flow.modules.basic.selectable.d.SelectableDoubleModuleCreator;
 import de.javagl.flow.modules.basic.selectable.f.SelectableFloatModuleCreator;
 import de.javagl.flow.modules.basic.selectable.file.SelectableFileModuleCreator;
 import de.javagl.flow.modules.basic.selectable.i.SelectableIntegerModuleCreator;
+import de.javagl.flow.modules.basic.selectable.j.SelectableLongModuleCreator;
 import de.javagl.flow.modules.basic.selectable.string.SelectableStringModuleCreator;
 import de.javagl.flow.modules.basic.selectable.z.SelectableBooleanModuleCreator;
 import de.javagl.flow.plugin.AbstractModuleCreatorSource;
@@ -35,7 +37,9 @@ public class SelectableModuleCreatorSource
         get("Selectable").add(new SelectableStringModuleCreator());
         get("Selectable").add(new SelectableBooleanModuleCreator());
         get("Selectable").add(new SelectableIntegerModuleCreator());
+        get("Selectable").add(new SelectableLongModuleCreator());
         get("Selectable").add(new SelectableFloatModuleCreator());
+        get("Selectable").add(new SelectableDoubleModuleCreator());
         get("Selectable").add(new SelectableFileModuleCreator());
     }
 }
