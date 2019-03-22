@@ -395,7 +395,8 @@ public final class ModuleCreatorInstantiator
     {
         try
         {
-            Method method = Methods.parseMethodUnchecked(fullMethodString);
+            Method method = 
+                Methods.parseMethodUnchecked(fullMethodString, true);
             return ModuleCreators.createForMethod(method, shortName);
         }
         catch (ReflectionException e)
