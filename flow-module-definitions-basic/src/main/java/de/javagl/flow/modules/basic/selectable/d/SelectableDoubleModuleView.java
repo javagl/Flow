@@ -16,6 +16,7 @@ import javax.swing.JSpinner;
 import javax.swing.JSpinner.DefaultEditor;
 import javax.swing.SpinnerNumberModel;
 
+import de.javagl.common.ui.JSpinners;
 import de.javagl.flow.module.Module;
 import de.javagl.flow.module.view.ModuleView;
 
@@ -64,7 +65,8 @@ public final class SelectableDoubleModuleView
                 module.getConfiguration().setValue(number.doubleValue());
             }
         });
-        
+
+        JSpinners.setSpinnerDraggingEnabled(spinner, true);
         add(spinner, BorderLayout.CENTER);
         
         propertyChangeListener = new PropertyChangeListener()

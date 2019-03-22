@@ -6,7 +6,6 @@
 package de.javagl.flow.modules.basic.selectable.z;
 
 import java.awt.BorderLayout;
-import java.awt.GridLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
