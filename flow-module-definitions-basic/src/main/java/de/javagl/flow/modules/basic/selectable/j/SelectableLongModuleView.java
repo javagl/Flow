@@ -5,6 +5,7 @@
  */ 
 package de.javagl.flow.modules.basic.selectable.j;
 
+import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -46,8 +47,8 @@ public final class SelectableLongModuleView
      */
     public SelectableLongModuleView()
     {
-        setLayout(new GridLayout(0,2));
-        add(new JLabel("Long:"));
+        setLayout(new BorderLayout());
+        add(new JLabel("Long:"), BorderLayout.WEST);
 
         spinner = new JSpinner(new SpinnerNumberModel(
             0, -Long.MAX_VALUE, Long.MAX_VALUE, 1));
@@ -65,7 +66,7 @@ public final class SelectableLongModuleView
             }
         });
         
-        add(spinner);
+        add(spinner, BorderLayout.CENTER);
         
         propertyChangeListener = new PropertyChangeListener()
         {

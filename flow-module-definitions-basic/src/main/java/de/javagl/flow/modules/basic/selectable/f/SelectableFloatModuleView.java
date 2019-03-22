@@ -5,6 +5,7 @@
  */ 
 package de.javagl.flow.modules.basic.selectable.f;
 
+import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -46,11 +47,11 @@ public final class SelectableFloatModuleView
      */
     public SelectableFloatModuleView()
     {
-        setLayout(new GridLayout(0,2));
-        add(new JLabel("Float:"));
+        setLayout(new BorderLayout());
+        add(new JLabel("Float:"), BorderLayout.WEST);
 
         spinner = new JSpinner(new SpinnerNumberModel(
-            0.0, -Double.MAX_VALUE, Double.MAX_VALUE, 0.1));
+            0.0, -Double.MAX_VALUE, Double.MAX_VALUE, 0.01));
         DefaultEditor editor = (DefaultEditor) spinner.getEditor();
         JFormattedTextField textField = editor.getTextField();
         textField.setColumns(10);
@@ -65,7 +66,7 @@ public final class SelectableFloatModuleView
             }
         });
         
-        add(spinner);
+        add(spinner, BorderLayout.CENTER);
         
         propertyChangeListener = new PropertyChangeListener()
         {

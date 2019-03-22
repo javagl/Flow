@@ -5,6 +5,7 @@
  */ 
 package de.javagl.flow.modules.basic.selectable.i;
 
+import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -46,8 +47,8 @@ public final class SelectableIntegerModuleView
      */
     public SelectableIntegerModuleView()
     {
-        setLayout(new GridLayout(0,2));
-        add(new JLabel("Integer:"));
+        setLayout(new BorderLayout());
+        add(new JLabel("Integer:"), BorderLayout.WEST);
 
         spinner = new JSpinner(new SpinnerNumberModel(
             0, -Integer.MAX_VALUE, Integer.MAX_VALUE, 1));
@@ -65,7 +66,7 @@ public final class SelectableIntegerModuleView
             }
         });
         
-        add(spinner);
+        add(spinner, BorderLayout.CENTER);
         
         propertyChangeListener = new PropertyChangeListener()
         {

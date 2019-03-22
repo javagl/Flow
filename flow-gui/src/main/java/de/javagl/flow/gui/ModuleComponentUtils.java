@@ -57,9 +57,9 @@ class ModuleComponentUtils
     {
         StringBuilder sb = new StringBuilder();
         sb.append("<html>");
+        sb.append("<font size=-2>");
         sb.append(slotInfo.getName());
         sb.append("<br>");
-        sb.append("<font size=-2>");
         sb.append(GuiUtils.escapeTypeName(
             Types.stringFor(slot.getActualType())));
         sb.append("</font>");

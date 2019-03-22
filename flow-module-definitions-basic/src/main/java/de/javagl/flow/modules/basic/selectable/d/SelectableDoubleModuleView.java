@@ -5,7 +5,7 @@
  */ 
 package de.javagl.flow.modules.basic.selectable.d;
 
-import java.awt.GridLayout;
+import java.awt.BorderLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -46,11 +46,11 @@ public final class SelectableDoubleModuleView
      */
     public SelectableDoubleModuleView()
     {
-        setLayout(new GridLayout(0,2));
-        add(new JLabel("Double:"));
+        setLayout(new BorderLayout());
+        add(new JLabel("Double:"), BorderLayout.WEST);
 
         spinner = new JSpinner(new SpinnerNumberModel(
-            0.0, -Double.MAX_VALUE, Double.MAX_VALUE, 0.1));
+            0.0, -Double.MAX_VALUE, Double.MAX_VALUE, 0.01));
         DefaultEditor editor = (DefaultEditor) spinner.getEditor();
         JFormattedTextField textField = editor.getTextField();
         textField.setColumns(10);
@@ -65,7 +65,7 @@ public final class SelectableDoubleModuleView
             }
         });
         
-        add(spinner);
+        add(spinner, BorderLayout.CENTER);
         
         propertyChangeListener = new PropertyChangeListener()
         {

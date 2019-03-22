@@ -202,6 +202,10 @@ final class ModuleComponent extends JInternalFrame
     {
         super("(none)", false, false, false, false);
         
+        JComponent titleBar = getTitleBar();
+        Font titleFont = titleBar.getFont();
+        titleBar.setFont(titleFont.deriveFont(10.0f));
+        
         this.configurationView = configurationView;
         this.visualizationView = visualizationView;
         
@@ -319,11 +323,15 @@ final class ModuleComponent extends JInternalFrame
             visualizationView.setModule(newModule);
         }
         
-        setTitle(String.valueOf(module));
-
         slotsPanel.removeAll();
-        if (module != null)
+        if (module == null)
         {
+            setTitle("(none)");
+        }
+        else
+        {
+            setTitle(module.getModuleInfo().getName());
+            
             if (!module.getModuleInfo().getInputSlotInfos().isEmpty())
             {
                 moduleComponentInputPanel = 

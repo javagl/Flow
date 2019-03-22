@@ -5,6 +5,7 @@
  */ 
 package de.javagl.flow.modules.basic.selectable.string;
 
+import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -50,8 +51,8 @@ public final class SelectableStringModuleView
      */
     public SelectableStringModuleView()
     {
-        setLayout(new GridLayout(0,2));
-        add(new JLabel("String:"));
+        setLayout(new BorderLayout());
+        add(new JLabel("String:"), BorderLayout.WEST);
         textField = new JTextField(10);
         textField.getDocument().addDocumentListener(new DocumentListener()
         {
@@ -83,7 +84,7 @@ public final class SelectableStringModuleView
                 }
            }
         });
-        add(textField);
+        add(textField, BorderLayout.CENTER);
         
         propertyChangeListener = new PropertyChangeListener()
         {

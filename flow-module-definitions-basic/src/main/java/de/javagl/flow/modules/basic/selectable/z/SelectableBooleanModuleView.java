@@ -5,6 +5,7 @@
  */ 
 package de.javagl.flow.modules.basic.selectable.z;
 
+import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -43,8 +44,8 @@ public final class SelectableBooleanModuleView
      */
     public SelectableBooleanModuleView()
     {
-        setLayout(new GridLayout(0,2));
-        add(new JLabel("Boolean:"));
+        setLayout(new BorderLayout());
+        add(new JLabel("Boolean:"), BorderLayout.WEST);
         checkBox = new JCheckBox();
         checkBox.addActionListener(e -> 
         {
@@ -53,7 +54,7 @@ public final class SelectableBooleanModuleView
                 module.getConfiguration().setValue(checkBox.isSelected());
             }
         });
-        add(checkBox);
+        add(checkBox, BorderLayout.CENTER);
         
         propertyChangeListener = new PropertyChangeListener()
         {
