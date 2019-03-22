@@ -44,6 +44,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
 import de.javagl.category.Category;
+import de.javagl.common.ui.JSplitPanes;
 import de.javagl.flow.Flow;
 import de.javagl.flow.TypeContext;
 import de.javagl.flow.gui.compatibility.ModuleCompatibilityModel;
@@ -549,12 +550,15 @@ final class FlowEditorApplicationPanel extends JPanel
     private JPanel createInfoPanel()
     {
         JPanel infoPanel = new JPanel(new BorderLayout());
-
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        infoPanel.add(splitPane, BorderLayout.CENTER);
+        
         // Create the info panel for the selected module
+        
         selectedModuleDescriptionPanel = new ModuleDescriptionPanel();
         JScrollPane scrollPane =
             new JScrollPane(selectedModuleDescriptionPanel);
-        infoPanel.add(scrollPane, BorderLayout.CENTER);
+        splitPane.setLeftComponent(scrollPane);
         
         // Create the FlowOverview
         flowOverview = new FlowOverview(flowEditorViewport);
@@ -573,7 +577,8 @@ final class FlowEditorApplicationPanel extends JPanel
         JPanel panel = new JPanel(new GridLayout(1,1));
         panel.setBorder(BorderFactory.createTitledBorder("Overview"));
         panel.add(flowOverview);
-        infoPanel.add(panel, BorderLayout.EAST);
+        splitPane.setRightComponent(panel);
+        JSplitPanes.setDividerLocation(splitPane, 0.8);
 
         return infoPanel;
     }
