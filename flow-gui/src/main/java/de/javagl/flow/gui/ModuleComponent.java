@@ -44,9 +44,12 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
@@ -59,6 +62,7 @@ import de.javagl.flow.module.Module;
 import de.javagl.flow.module.slot.InputSlot;
 import de.javagl.flow.module.slot.OutputSlot;
 import de.javagl.flow.module.view.ModuleView;
+import de.javagl.flow.module.view.ModuleViewType;
 
 /**
  * A component representing a {@link Module} inside a 
@@ -112,17 +116,12 @@ final class ModuleComponent extends JInternalFrame
     private final JProgressBar statusBar;
     
     /**
-     * The (optional) {@link ModuleView} that shows a UI component for
-     * editing the {@link Module#getConfiguration() configuration} of the 
-     * module
+     * The mapping from {@link ModuleViewType} instances to the 
+     * corresponding {@link ModuleView} instances that provide
+     * the components for configuration and visualization that
+     * are shown in this component.
      */
-    private final ModuleView configurationView;
-
-    /**
-     * The (optional) {@link ModuleView} that shows a visualization that
-     * is associated with the module
-     */
-    private final ModuleView visualizationView;
+    private final Map<ModuleViewType, ModuleView> moduleViews;
 
     /**
      * The content pane
@@ -180,34 +179,24 @@ final class ModuleComponent extends JInternalFrame
     /**
      * Creates a new component that represents a {@link Module}.<br>
      * <br>
-     * If the given configuration view is not <code>null</code>, then its 
-     * {@link ModuleView#getComponent() component} will be added to this 
-     * component.<br>
-     * <br> 
-     * If the given visualization view is not <code>null</code>, then its 
-     * {@link ModuleView#getComponent() component} will be added to this 
-     * component.
-     * 
-     * @param configurationView The {@link ModuleView} that contains the
-     * UI components for editing the 
-     * {@link Module#getConfiguration() configuration} of
-     * the {@link Module}. May be <code>null</code>
-     * @param visualizationView The {@link ModuleView} that contains the
-     * visualization that is associated with the {@link Module}.
-     * May be <code>null</code>
+     * The given module views map {@link ModuleViewType} objects to 
+     * {@link ModuleView} objects. The components that are created
+     * by these {@link ModuleView} objects will be added to this 
+     * component, in the order in which they appear in the given
+     * map.
+     *  
+     * @param moduleViews The module views 
      */
-    ModuleComponent( 
-        ModuleView configurationView,
-        ModuleView visualizationView)
+    ModuleComponent(Map<ModuleViewType, ModuleView> moduleViews)
     {
         super("(none)", false, false, false, false);
         
         JComponent titleBar = getTitleBar();
         Font titleFont = titleBar.getFont();
         titleBar.setFont(titleFont.deriveFont(10.0f));
-        
-        this.configurationView = configurationView;
-        this.visualizationView = visualizationView;
+
+        this.moduleViews = 
+            new LinkedHashMap<ModuleViewType, ModuleView>(moduleViews);
         
         this.contentPane = new JPanel();
         setContentPane(contentPane);
@@ -228,30 +217,24 @@ final class ModuleComponent extends JInternalFrame
         
         centerPanel.add(slotsPanel, BorderLayout.NORTH);
         
-        if (configurationView != null || visualizationView != null)
+        if (!moduleViews.isEmpty())
         {
-            // Create the panel that contains the visualization
-            // and configuration views
-            JPanel viewsPanel = new JPanel(new BorderLayout());
+            // Create the panel that contains the module view components
+            JPanel viewsPanel = new JPanel();
+            viewsPanel.setLayout(new BoxLayout(viewsPanel, BoxLayout.Y_AXIS));
 
-            JComponent configurationComponent = 
-                getModuleViewComponent(configurationView);
-            if (configurationComponent != null)
+            for (ModuleView moduleView : moduleViews.values())
             {
-                viewsPanel.add(configurationComponent, BorderLayout.NORTH);
-                configurationComponent.addPropertyChangeListener(
-                    preferredSizeListener);
+                JComponent moduleViewComponent = 
+                    getModuleViewComponent(moduleView);
+                if (moduleViewComponent != null)
+                {
+                    moduleViewComponent.setAlignmentX(CENTER_ALIGNMENT);
+                    viewsPanel.add(moduleViewComponent);
+                    moduleViewComponent.addPropertyChangeListener(
+                        preferredSizeListener);
+                }
             }
-            
-            JComponent visualizationComponent = 
-                getModuleViewComponent(visualizationView);
-            if (visualizationComponent != null)
-            {
-                viewsPanel.add(visualizationComponent, BorderLayout.CENTER);
-                visualizationComponent.addPropertyChangeListener(
-                    preferredSizeListener);
-            }
-            
             centerPanel.add(viewsPanel, BorderLayout.CENTER);
         }
         getContentPane().add(centerPanel, BorderLayout.CENTER);
@@ -268,8 +251,8 @@ final class ModuleComponent extends JInternalFrame
         getContentPane().add(statusBar, BorderLayout.SOUTH);
         
         setVisible(true);
-        setResizable(visualizationView != null);
-        setMaximizable(visualizationView != null);
+        setResizable(!moduleViews.isEmpty());
+        setMaximizable(!moduleViews.isEmpty());
         
         // Uninstall the popup menu that may have been added by the Nimbus L&F.
         // A popup menu that may contain the action to delete the module 
@@ -314,13 +297,9 @@ final class ModuleComponent extends JInternalFrame
     {
         module = newModule;
 
-        if (configurationView != null)
+        for (ModuleView moduleView : moduleViews.values())
         {
-            configurationView.setModule(newModule);
-        }
-        if (visualizationView != null)
-        {
-            visualizationView.setModule(newModule);
+            moduleView.setModule(newModule);
         }
         
         slotsPanel.removeAll();

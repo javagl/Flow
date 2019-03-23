@@ -84,7 +84,7 @@ import de.javagl.flow.module.slot.InputSlot;
 import de.javagl.flow.module.slot.OutputSlot;
 import de.javagl.flow.module.slot.Slot;
 import de.javagl.flow.module.view.ModuleView;
-import de.javagl.flow.module.view.ModuleViewTypes;
+import de.javagl.flow.module.view.ModuleViewType;
 import de.javagl.flow.repository.Repository;
 import de.javagl.flow.workspace.FlowLayout;
 import de.javagl.flow.workspace.FlowLayoutEvent;
@@ -297,6 +297,7 @@ final class FlowEditorComponent extends JPanel implements ModuleComponentOwner
         @Override
         public void moduleAdded(FlowEvent flowEvent)
         {
+            //logger.info("moduleAdded " + flowEvent);
             ModuleComponent moduleComponent = createModuleComponent(
                 flowEvent.getModule());
             Dimension d = moduleComponent.getPreferredSize();
@@ -307,12 +308,14 @@ final class FlowEditorComponent extends JPanel implements ModuleComponentOwner
         @Override
         public void moduleRemoved(FlowEvent flowEvent)
         {
+            //logger.info("moduleRemoved " + flowEvent);
             removeModuleComponent(flowEvent.getModule());
         }
 
         @Override
         public void linkAdded(FlowEvent flowEvent)
         {
+            //logger.info("linkAdded " + flowEvent);
             linksPanel.setHighlightedLink(null);
             repaint();
         }
@@ -320,6 +323,7 @@ final class FlowEditorComponent extends JPanel implements ModuleComponentOwner
         @Override
         public void linkRemoved(FlowEvent flowEvent)
         {
+            //logger.info("linkRemoved " + flowEvent);
             linksPanel.setHighlightedLink(null);
             repaint();
         }
@@ -905,11 +909,31 @@ final class FlowEditorComponent extends JPanel implements ModuleComponentOwner
     {
         ModuleCreator moduleCreator = 
             moduleCreatorRepository.get(module.getModuleInfo());
-
-        // TODO Currently, only the two default module view types 
-        // are supported here
-        ModuleView configurationView = null; 
-        ModuleView visualizationView = null;
+        
+        ModuleComponent moduleComponent = 
+            createModuleComponent(module, moduleCreator); 
+        moduleComponent.setModule(module);
+        Dimension size = moduleComponent.getPreferredSize();
+        moduleComponent.setSize(size);
+        return moduleComponent;
+    }
+    
+    /**
+     * Create the {@link ModuleComponent} for the given {@link Module},
+     * using the given {@link ModuleCreator}. If the given 
+     * {@link ModuleCreator} is <code>null</code>, then an error
+     * message will be printed and a possibly incomplete 
+     * {@link ModuleComponent} will be returned.
+     * 
+     * @param module The {@link Module}
+     * @param moduleCreator The {@link ModuleCreator}
+     * @return The {@link ModuleComponent}
+     */
+    static ModuleComponent createModuleComponent(
+        Module module, ModuleCreator moduleCreator)
+    {
+        Map<ModuleViewType, ModuleView> moduleViews = 
+            new LinkedHashMap<ModuleViewType, ModuleView>();
         if (moduleCreator == null)
         {
             logger.severe("No ModuleCreator found in repository "
@@ -919,17 +943,20 @@ final class FlowEditorComponent extends JPanel implements ModuleComponentOwner
         }
         else
         {
-            configurationView = moduleCreator.createModuleView(
-                ModuleViewTypes.CONFIGURATION_VIEW); 
-            visualizationView = moduleCreator.createModuleView(
-                ModuleViewTypes.VISUALIZATION_VIEW); 
+            List<ModuleViewType> moduleViewTypes = 
+                moduleCreator.getSupportedModuleViewTypes();
+            for (ModuleViewType moduleViewType : moduleViewTypes)
+            {
+                ModuleView moduleView = 
+                    moduleCreator.createModuleView(moduleViewType);
+                if (moduleView != null)
+                {
+                    moduleViews.put(moduleViewType, moduleView);
+                }
+            }
         }
-        
         ModuleComponent moduleComponent = 
-            new ModuleComponent(configurationView, visualizationView);
-        moduleComponent.setModule(module);
-        Dimension size = moduleComponent.getPreferredSize();
-        moduleComponent.setSize(size);
+            new ModuleComponent(moduleViews);
         return moduleComponent;
     }
     
