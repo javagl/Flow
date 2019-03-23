@@ -330,7 +330,7 @@ final class ModuleComponent extends JInternalFrame
         }
         else
         {
-            setTitle(module.getModuleInfo().getName());
+            setTitle(String.valueOf(module));
             
             if (!module.getModuleInfo().getInputSlotInfos().isEmpty())
             {
