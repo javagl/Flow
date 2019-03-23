@@ -27,8 +27,6 @@
 package de.javagl.flow.gui;
 
 import java.awt.BorderLayout;
-import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -42,6 +40,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.Properties;
 import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
@@ -93,6 +93,38 @@ public final class FlowEditorApplication
      */
     private static final Logger logger = 
         Logger.getLogger(FlowEditorApplication.class.getName());
+    
+    /**
+     * The name of the properties file that stores the application state
+     */
+    private static final String PROPERTIES_FILE_NAME = 
+        "de.javagl.flow.properties";
+    
+    /**
+     * The prefix for the property names for the main frame bounds
+     */
+    private static final String FRAME_BOUNDS = 
+        "FlowEditorApplication.frame.bounds";
+
+    /**
+     * The property name for the x-coordinate of the main frame bounds
+     */
+    private static final String FRAME_BOUNDS_X = FRAME_BOUNDS + ".x";
+
+    /**
+     * The property name for the y-coordinate of the main frame bounds
+     */
+    private static final String FRAME_BOUNDS_Y = FRAME_BOUNDS + ".y";
+
+    /**
+     * The property name for the width of the main frame bounds
+     */
+    private static final String FRAME_BOUNDS_W = FRAME_BOUNDS + ".width";
+
+    /**
+     * The property name for the height of the main frame bounds
+     */
+    private static final String FRAME_BOUNDS_H = FRAME_BOUNDS + ".height";
     
     
     /**
@@ -322,13 +354,10 @@ public final class FlowEditorApplication
         // Set the initial size of the frame
         GraphicsEnvironment ge = 
             GraphicsEnvironment.getLocalGraphicsEnvironment();
-        GraphicsDevice gd = ge.getDefaultScreenDevice();
-        GraphicsConfiguration gc = gd.getDefaultConfiguration();
-        Rectangle bounds = gc.getBounds();
-        
-        bounds.height -= 300; // XXX Arbitrarily decreasing window height
-        
+        Rectangle bounds = ge.getMaximumWindowBounds();
         frame.setBounds(bounds);
+        
+        restoreStateFromProperties();
         
         frame.setVisible(true);
     }
@@ -677,8 +706,86 @@ public final class FlowEditorApplication
                 return;
             }
         }
+        saveStateToProperties();
         frame.setVisible(false);
         frame.dispose();
     }
+    
+    /**
+     * Restore the application state from the {@link #PROPERTIES_FILE_NAME}
+     * properties file
+     */
+    private void restoreStateFromProperties()
+    {
+        Properties properties = 
+            PropertiesUtils.readPropertiesUnchecked(PROPERTIES_FILE_NAME);
+        if (properties != null)
+        {
+            restoreFrameBounds(properties);
+        }
+    }
+    
+    /**
+     * Save the application state to the {@link #PROPERTIES_FILE_NAME}
+     * properties file
+     */
+    private void saveStateToProperties()
+    {
+        Properties properties = 
+            PropertiesUtils.readPropertiesUnchecked(PROPERTIES_FILE_NAME);
+        if (properties != null)
+        {
+            saveFrameBounds(properties);
+            PropertiesUtils.writePropertiesUnchecked(
+                properties, PROPERTIES_FILE_NAME);
+        }
+    }
+    
+    /**
+     * Restore the bounds of the main frame from the given properties
+     * 
+     * @param properties The properties
+     */
+    private void restoreFrameBounds(Properties properties)
+    {
+        String sFrameX = properties.getProperty(FRAME_BOUNDS_X);
+        String sFrameY = properties.getProperty(FRAME_BOUNDS_Y);
+        String sFrameW = properties.getProperty(FRAME_BOUNDS_W);
+        String sFrameH = properties.getProperty(FRAME_BOUNDS_H);
+        if (Arrays.asList(sFrameX, sFrameY, sFrameW, sFrameH).contains(null))
+        {
+            return;
+        }
+        try
+        {
+            int frameX = Integer.parseInt(sFrameX);
+            int frameY = Integer.parseInt(sFrameY);
+            int frameW = Integer.parseInt(sFrameW);
+            int frameH = Integer.parseInt(sFrameH);
+            frame.setBounds(frameX, frameY, frameW, frameH);
+        }
+        catch (NumberFormatException e)
+        {
+            logger.warning(e.toString());
+        }
+    }
+    
+    /**
+     * Save the bounds of the main frame in the given properties
+     * 
+     * @param properties The properties
+     */
+    private void saveFrameBounds(Properties properties)
+    {
+        if (properties == null)
+        {
+            return;
+        }
+        properties.put(FRAME_BOUNDS_X, String.valueOf(frame.getX()));
+        properties.put(FRAME_BOUNDS_Y, String.valueOf(frame.getY()));
+        properties.put(FRAME_BOUNDS_W, String.valueOf(frame.getWidth()));
+        properties.put(FRAME_BOUNDS_H, String.valueOf(frame.getHeight()));
+    }
+    
     
 }
