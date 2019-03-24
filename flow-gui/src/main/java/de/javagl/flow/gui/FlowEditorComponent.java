@@ -63,6 +63,7 @@ import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -211,6 +212,11 @@ final class FlowEditorComponent extends JPanel implements ModuleComponentOwner
      * driven through this panel  
      */
     private final FlowEditorControl flowEditorControl; 
+    
+    /**
+     * The {@link ExternalizedComponentHandler}
+     */
+    private final ExternalizedComponentHandler externalizedComponentHandler;
     
     /**
      * The key stroke for the 'delete' key
@@ -480,28 +486,38 @@ final class FlowEditorComponent extends JPanel implements ModuleComponentOwner
         // functions in the FlowEditor, causing UndoableEdit
         // instances to be created
         flowEditorControl = 
-            new FlowEditorControl(this);
+            new FlowEditorControl(this, this::handleModuleComponentPopupMenu);
         desktopPane.addMouseListener(flowEditorControl);
         desktopPane.addMouseMotionListener(flowEditorControl);
 
+        externalizedComponentHandler = 
+            new ExternalizedComponentHandler(moduleCreatorRepository);
+        
         getInputMap(JComponent.WHEN_FOCUSED).put(
             deleteKeyStroke, "deleteSelected");
         getActionMap().put("deleteSelected", deleteSelectedAction);
         
-//        KeyboardFocusManager.getCurrentKeyboardFocusManager().addPropertyChangeListener(new PropertyChangeListener()
-//        {
-//            @Override
-//            public void propertyChange(PropertyChangeEvent evt)
-//            {
-//                if (evt.getPropertyName().equals("focusOwner"))
-//                {
-//                    System.out.println("Old : "+evt.getOldValue());
-//                    System.out.println("New : "+evt.getNewValue());
-//                }
-//            }
-//        });
-        
         add(desktopPane);
+    }
+    
+    /**
+     * Will be called when the title bar of the given {@link ModuleComponent}
+     * was right-clicked, and a popup menu should be shown
+     * 
+     * @param moduleComponent The {@link ModuleComponent}
+     * @param location The location of the click inside the component
+     */
+    private void handleModuleComponentPopupMenu(
+        ModuleComponent moduleComponent, Point location)
+    {
+        JPopupMenu menu = new JPopupMenu();
+        Module module = moduleComponent.getModule();
+        menu.add(externalizedComponentHandler
+            .createExternalizeAction(moduleComponent));
+        menu.addSeparator();
+        menu.add(ModuleComponentPopupMenus.createDeleteModuleAction(
+            flowEditor, module));
+        menu.show(moduleComponent, location.x, location.y);
     }
     
     
@@ -818,6 +834,7 @@ final class FlowEditorComponent extends JPanel implements ModuleComponentOwner
         }
         this.flowEditor = newFlowEditor;
         flowEditorControl.setFlowEditor(flowEditor);
+        externalizedComponentHandler.setFlowEditor(flowEditor);
         linksPanel.setFlowWorkspace(flowEditor.getFlowWorkspace());
         if (flowEditor != null)
         {
@@ -913,10 +930,12 @@ final class FlowEditorComponent extends JPanel implements ModuleComponentOwner
         ModuleComponent moduleComponent = 
             createModuleComponent(module, moduleCreator); 
         moduleComponent.setModule(module);
+        
         Dimension size = moduleComponent.getPreferredSize();
         moduleComponent.setSize(size);
         return moduleComponent;
     }
+    
     
     /**
      * Create the {@link ModuleComponent} for the given {@link Module},

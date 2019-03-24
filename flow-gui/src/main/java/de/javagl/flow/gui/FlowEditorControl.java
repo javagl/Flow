@@ -242,13 +242,22 @@ final class FlowEditorControl
     });
     
     /**
+     * The handler for right-clicks on {@link ModuleComponent} title bars,
+     * to show a popup menu
+     */
+    private final ModuleComponentPopupMenuHandler popupMenuHandler;
+    
+    /**
      * Creates a new control that operates on the given panel
      * 
      * @param flowEditorComponent The {@link FlowEditorComponent}
+     * @param popupMenuHandler The {@link ModuleComponentPopupMenuHandler}
      */
-    FlowEditorControl(FlowEditorComponent flowEditorComponent)
+    FlowEditorControl(FlowEditorComponent flowEditorComponent,
+        ModuleComponentPopupMenuHandler popupMenuHandler)
     {
         this.flowEditorComponent = flowEditorComponent;
+        this.popupMenuHandler = popupMenuHandler;
         autoscrollTimer.stop();
     }
     
@@ -443,17 +452,7 @@ final class FlowEditorControl
         
         // Only proceed if the mouse was pressed on the title
         // bar of a ModuleComponent
-        
-        Point globalPoint = e.getPoint();
-        Point localPoint = SwingUtilities.convertPoint(
-            e.getComponent(), globalPoint, pressedOnModuleComponent);
-        JComponent titleBar = pressedOnModuleComponent.getTitleBar();
-        
-        //System.out.println("Pressed on "+e.getComponent());
-        //System.out.println("Local point "+localPoint);
-        //System.out.println("Title bar "+titleBar.getBounds());
-        
-        if (!titleBar.getBounds().contains(localPoint))
+        if (!isOnTitleBar(e, pressedOnModuleComponent))
         {
             return false;
         }
@@ -491,10 +490,28 @@ final class FlowEditorControl
         return true;
     }
 
-    
-    
-    
-    
+    /**
+     * Returns whether the given event appeared on the title bar of the
+     * given {@link ModuleComponent}
+     * 
+     * @param e The event
+     * @param moduleComponent The {@link ModuleComponent}
+     * @return Whether the event was on the title bar
+     */
+    private boolean isOnTitleBar(MouseEvent e, ModuleComponent moduleComponent)
+    {
+        Point globalPoint = e.getPoint();
+        Point localPoint = SwingUtilities.convertPoint(
+            e.getComponent(), globalPoint, moduleComponent);
+        JComponent titleBar = moduleComponent.getTitleBar();
+        
+        //System.out.println("Pressed on "+e.getComponent());
+        //System.out.println("Local point "+localPoint);
+        //System.out.println("Title bar "+titleBar.getBounds());
+        
+        return titleBar.getBounds().contains(localPoint);
+    }
+
     /**
      * Attempts to start the creation of a selection rectangle. This will
      * be the case if the mouse was NOT pressed on a {@link Link}.
@@ -743,19 +760,18 @@ final class FlowEditorControl
                 flowEditorComponent.getModuleComponentAt(e.getPoint());
             if (clickedModuleComponent != null)
             {
-                Point location = SwingUtilities.convertPoint(
-                    e.getComponent(), e.getPoint(), clickedModuleComponent);
-                ModuleComponentPopupMenus.showMenuFor(
-                    flowEditor, clickedModuleComponent, location);
+                if (isOnTitleBar(e, clickedModuleComponent))
+                {
+                    Point location = SwingUtilities.convertPoint(
+                        e.getComponent(), e.getPoint(), clickedModuleComponent);
+                    popupMenuHandler.handleModuleComponentPopupMenu(
+                        clickedModuleComponent, location);
+                }
             }
         }
         previousPosition.setLocation(e.getPoint());
     }
     
-    
-    
-
-
     @Override
     public void mouseReleased(MouseEvent e)
     {

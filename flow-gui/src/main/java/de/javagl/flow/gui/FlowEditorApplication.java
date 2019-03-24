@@ -709,6 +709,7 @@ public final class FlowEditorApplication
         saveStateToProperties();
         frame.setVisible(false);
         frame.dispose();
+        System.exit(0);
     }
     
     /**
