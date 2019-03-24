@@ -520,6 +520,46 @@ final class FlowEditorComponent extends JPanel implements ModuleComponentOwner
         menu.show(moduleComponent, location.x, location.y);
     }
     
+    /**
+     * Set whether the externalized frame for the given {@link ModuleViewType}
+     * should be visible
+     * 
+     * @param moduleViewType The {@link ModuleViewType} 
+     * @param visible The state
+     */
+    void setExternalizedFrameVisible(
+        ModuleViewType moduleViewType, boolean visible)
+    {
+        externalizedComponentHandler.setExternalizedFrameVisible(
+            moduleViewType, visible);
+    }
+    
+    /**
+     * Set the bounds of the externalized frame for the given 
+     * {@link ModuleViewType}
+     * 
+     * @param moduleViewType The {@link ModuleViewType} 
+     * @param bounds The bounds
+     */
+    void setExternalizedFrameBounds(
+        ModuleViewType moduleViewType, Rectangle bounds)
+    {
+        externalizedComponentHandler.setExternalizedFrameBounds(
+            moduleViewType, bounds);
+    }
+    
+    /**
+     * Return the bounds of the externalized frame for the given 
+     * {@link ModuleViewType}
+     * 
+     * @param moduleViewType The {@link ModuleViewType} 
+     * @return The bounds 
+     */
+    Rectangle getExternalizedFrameBounds(ModuleViewType moduleViewType)
+    {
+        return externalizedComponentHandler.getExternalizedFrameBounds(
+            moduleViewType);
+    }
     
     
     /**

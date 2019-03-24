@@ -28,6 +28,7 @@ package de.javagl.flow.gui;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -144,7 +145,7 @@ class ExternalizedComponentHandler
         visualizationComponentContainers = 
             new LinkedHashMap<Module, JComponent>();
 
-        // XXX TODO Think about how to lay out the externalized frames
+        // TODO Think about how to lay out the externalized frames initially
         
         configurationsFrame = new JFrame("Configurations");
         configurationsFrame.setDefaultCloseOperation(
@@ -152,9 +153,8 @@ class ExternalizedComponentHandler
         configurationsAccordionPanel = new AccordionPanel();
         configurationsFrame.getContentPane()
             .add(configurationsAccordionPanel);
-        configurationsFrame.setSize(400, 600);
-        configurationsFrame.setLocation(2000, 0);
-        configurationsFrame.setVisible(true);
+        configurationsFrame.setSize(400, 400);
+        configurationsFrame.setLocationRelativeTo(null);
 
         visualizationsFrame = new JFrame("Visualizations");
         visualizationsFrame.setDefaultCloseOperation(
@@ -162,9 +162,8 @@ class ExternalizedComponentHandler
         visualizationsAccordionPanel = new AccordionPanel();
         visualizationsFrame.getContentPane()
             .add(visualizationsAccordionPanel);
-        visualizationsFrame.setSize(1200, 600);
-        visualizationsFrame.setLocation(2400, 0);
-        visualizationsFrame.setVisible(true);
+        visualizationsFrame.setSize(400, 400);
+        visualizationsFrame.setLocationRelativeTo(null);
     }
     
     /**
@@ -177,10 +176,12 @@ class ExternalizedComponentHandler
     {
         addModuleView(module, 
             ModuleViewTypes.CONFIGURATION_VIEW, 
+            configurationsFrame,
             configurationsAccordionPanel,
             configurationComponentContainers);
         addModuleView(module, 
-            ModuleViewTypes.VISUALIZATION_VIEW, 
+            ModuleViewTypes.VISUALIZATION_VIEW,
+            visualizationsFrame,
             visualizationsAccordionPanel,
             visualizationComponentContainers);
     }
@@ -191,12 +192,15 @@ class ExternalizedComponentHandler
      * 
      * @param module The {@link Module}
      * @param moduleViewType The {@link ModuleViewType}
+     * @param frame The frame
      * @param accordionPanel The accordion panel
      * @param map The map that will store the component that was added to
      * the accordion
      */
     private void addModuleView(Module module, 
-        ModuleViewType moduleViewType, AccordionPanel accordionPanel,
+        ModuleViewType moduleViewType, 
+        JFrame frame,
+        AccordionPanel accordionPanel,
         Map<Module, JComponent> map)
     {
         ModuleCreator moduleCreator = 
@@ -229,6 +233,7 @@ class ExternalizedComponentHandler
             accordionPanel.addToAccordion(
                 module.toString(), container);
             map.put(module, container);
+            frame.setVisible(true);
         }
     }
 
@@ -252,6 +257,76 @@ class ExternalizedComponentHandler
             Flow flow = this.flowEditor.getFlow();
             flow.addFlowListener(flowListener);
         }
+    }
+    
+    
+    /**
+     * Set whether the externalized frame for the given {@link ModuleViewType}
+     * should be visible
+     * 
+     * @param moduleViewType The {@link ModuleViewType} 
+     * @param visible The state
+     */
+    void setExternalizedFrameVisible(
+        ModuleViewType moduleViewType, boolean visible)
+    {
+        if (moduleViewType.equals(ModuleViewTypes.CONFIGURATION_VIEW))
+        {
+            configurationsFrame.setVisible(visible);
+        }
+        else if (moduleViewType.equals(ModuleViewTypes.VISUALIZATION_VIEW))
+        {
+            visualizationsFrame.setVisible(visible);
+        }
+        else
+        {
+            logger.warning("Unknown ModuleViewType: " + moduleViewType);
+        }
+    }
+    
+    /**
+     * Set the bounds of the externalized frame for the given 
+     * {@link ModuleViewType}
+     * 
+     * @param moduleViewType The {@link ModuleViewType} 
+     * @param bounds The bounds
+     */
+    void setExternalizedFrameBounds(
+        ModuleViewType moduleViewType, Rectangle bounds)
+    {
+        if (moduleViewType.equals(ModuleViewTypes.CONFIGURATION_VIEW))
+        {
+            configurationsFrame.setBounds(bounds);
+        }
+        else if (moduleViewType.equals(ModuleViewTypes.VISUALIZATION_VIEW))
+        {
+            visualizationsFrame.setBounds(bounds);
+        }
+        else
+        {
+            logger.warning("Unknown ModuleViewType: " + moduleViewType);
+        }
+    }
+    
+    /**
+     * Return the bounds of the externalized frame for the given 
+     * {@link ModuleViewType}
+     * 
+     * @param moduleViewType The {@link ModuleViewType} 
+     * @return The bounds 
+     */
+    Rectangle getExternalizedFrameBounds(ModuleViewType moduleViewType)
+    {
+        if (moduleViewType.equals(ModuleViewTypes.CONFIGURATION_VIEW))
+        {
+            return configurationsFrame.getBounds();
+        }
+        if (moduleViewType.equals(ModuleViewTypes.VISUALIZATION_VIEW))
+        {
+            return visualizationsFrame.getBounds();
+        }
+        logger.warning("Unknown ModuleViewType: " + moduleViewType);
+        return null;
     }
 
     /**
@@ -285,6 +360,9 @@ class ExternalizedComponentHandler
         };
         return action;
     }
+
+
+
     
 
 }

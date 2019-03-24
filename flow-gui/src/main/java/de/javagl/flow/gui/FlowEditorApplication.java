@@ -48,6 +48,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.InputMap;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -71,6 +72,8 @@ import de.javagl.flow.io.xml.XmlFlowWorkspace;
 import de.javagl.flow.io.xml.XmlUtils;
 import de.javagl.flow.module.ModuleInfo;
 import de.javagl.flow.module.creation.ModuleCreator;
+import de.javagl.flow.module.view.ModuleViewType;
+import de.javagl.flow.module.view.ModuleViewTypes;
 import de.javagl.flow.repository.Repository;
 import de.javagl.flow.workspace.FlowWorkspace;
 import de.javagl.flow.workspace.FlowWorkspaces;
@@ -101,31 +104,22 @@ public final class FlowEditorApplication
         "de.javagl.flow.properties";
     
     /**
-     * The prefix for the property names for the main frame bounds
+     * A property prefix for the frame bounds
      */
     private static final String FRAME_BOUNDS = 
-        "FlowEditorApplication.frame.bounds";
+        "FlowEditorApplication.frame.bounds.";
 
     /**
-     * The property name for the x-coordinate of the main frame bounds
+     * A property prefix for the configuration frame bounds
      */
-    private static final String FRAME_BOUNDS_X = FRAME_BOUNDS + ".x";
+    private static final String CONFIGURATION_FRAME_BOUNDS = 
+        "FlowEditorApplication.configurationFrame.bounds.";
 
     /**
-     * The property name for the y-coordinate of the main frame bounds
+     * A property prefix for the visualization frame bounds
      */
-    private static final String FRAME_BOUNDS_Y = FRAME_BOUNDS + ".y";
-
-    /**
-     * The property name for the width of the main frame bounds
-     */
-    private static final String FRAME_BOUNDS_W = FRAME_BOUNDS + ".width";
-
-    /**
-     * The property name for the height of the main frame bounds
-     */
-    private static final String FRAME_BOUNDS_H = FRAME_BOUNDS + ".height";
-    
+    private static final String VISUALIZATION_FRAME_BOUNDS = 
+        "FlowEditorApplication.visualizationFrame.bounds.";
     
     /**
      * The Action for creating a new flow
@@ -323,10 +317,9 @@ public final class FlowEditorApplication
 
         // Create the menu bar
         JMenuBar menuBar = new JMenuBar();
-        JMenu fileMenu = createFileMenu();
-        menuBar.add(fileMenu);
-        JMenu editMenu = createEditMenu();
-        menuBar.add(editMenu);
+        menuBar.add(createFileMenu());
+        menuBar.add(createEditMenu());
+        menuBar.add(createViewMenu());
         frame.setJMenuBar(menuBar);        
         
         // Create the main application panel and initialize the FlowEditor        
@@ -423,6 +416,63 @@ public final class FlowEditorApplication
         return editMenu;
     }
     
+    /**
+     * Create the 'View' menu
+     * 
+     * @return The menu
+     */
+    private JMenu createViewMenu()
+    {
+        JMenu viewMenu = new JMenu("View");
+        viewMenu.setMnemonic(KeyEvent.VK_E);
+        
+        viewMenu.add(createViewMenuItem(
+            "configuration", ModuleViewTypes.CONFIGURATION_VIEW));
+        viewMenu.add(createViewMenuItem(
+            "visualization", ModuleViewTypes.VISUALIZATION_VIEW));
+        
+        return viewMenu;
+    }
+    
+    /**
+     * Create the menu item for setting the visibility of the external frame
+     * for the given {@link ModuleViewType}
+     * @param name The name of the frame
+     * @param moduleViewType The {@link ModuleViewType}
+     * @return The menu item
+     */
+    private JMenuItem createViewMenuItem(
+        String name, ModuleViewType moduleViewType)
+    {
+        JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem();
+        Action action = new AbstractAction()
+        {
+            /**
+             * Serial UID
+             */
+            private static final long serialVersionUID = -847421180570850772L;
+
+            // Initialization
+            {
+                putValue(NAME, "Show " + name);
+                putValue(SHORT_DESCRIPTION, 
+                    "Show the frame that contains externalized "
+                    + name + " components");
+            }
+            
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                FlowEditorComponent flowEditorComponent = 
+                    flowEditorApplicationPanel.getFlowEditorComponent();
+                boolean visible = menuItem.isSelected();
+                flowEditorComponent.setExternalizedFrameVisible(
+                    moduleViewType, visible);
+            }
+        };
+        menuItem.setAction(action);
+        return menuItem;
+    }
     
     
     /**
@@ -749,25 +799,66 @@ public final class FlowEditorApplication
      */
     private void restoreFrameBounds(Properties properties)
     {
-        String sFrameX = properties.getProperty(FRAME_BOUNDS_X);
-        String sFrameY = properties.getProperty(FRAME_BOUNDS_Y);
-        String sFrameW = properties.getProperty(FRAME_BOUNDS_W);
-        String sFrameH = properties.getProperty(FRAME_BOUNDS_H);
-        if (Arrays.asList(sFrameX, sFrameY, sFrameW, sFrameH).contains(null))
+        Rectangle bounds = readRectangle(properties, 
+            FRAME_BOUNDS);
+        if (bounds != null)
         {
-            return;
+            frame.setBounds(bounds);
+        }
+        
+        FlowEditorComponent flowEditorComponent = 
+            flowEditorApplicationPanel.getFlowEditorComponent();
+        
+        Rectangle cBounds = readRectangle(properties, 
+            CONFIGURATION_FRAME_BOUNDS);
+        if (bounds != null)
+        {
+            flowEditorComponent.setExternalizedFrameBounds(
+                ModuleViewTypes.CONFIGURATION_VIEW, cBounds);
+        }
+
+        Rectangle vBounds = readRectangle(properties, 
+            VISUALIZATION_FRAME_BOUNDS);
+        if (bounds != null)
+        {
+            flowEditorComponent.setExternalizedFrameBounds(
+                ModuleViewTypes.VISUALIZATION_VIEW, vBounds);
+        }
+    }
+    
+    /**
+     * Read a rectangle from the properties that result from appending
+     * <code>x,y,width,height</code> to the given prefix string. If 
+     * any property is <code>null</code>, then <code>null</code> is
+     * returned. If any property cannot be parsed, a warning is printed
+     * and <code>null</code> is returned.
+     * 
+     * @param properties The properties
+     * @param prefix The prefix
+     * @return The rectangle
+     */
+    private Rectangle readRectangle(Properties properties, String prefix)
+    {
+        String sx = properties.getProperty(prefix + "x");
+        String sy = properties.getProperty(prefix + "y");
+        String sw = properties.getProperty(prefix + "width");
+        String sh = properties.getProperty(prefix + "height");
+        if (Arrays.asList(sx, sy, sw, sh).contains(null))
+        {
+            return null;
         }
         try
         {
-            int frameX = Integer.parseInt(sFrameX);
-            int frameY = Integer.parseInt(sFrameY);
-            int frameW = Integer.parseInt(sFrameW);
-            int frameH = Integer.parseInt(sFrameH);
-            frame.setBounds(frameX, frameY, frameW, frameH);
-        }
+            int x = Integer.parseInt(sx);
+            int y = Integer.parseInt(sy);
+            int w = Integer.parseInt(sw);
+            int h = Integer.parseInt(sh);
+            return new Rectangle(x, y, w, h);
+        } 
         catch (NumberFormatException e)
         {
             logger.warning(e.toString());
+            return null;
         }
     }
     
@@ -782,11 +873,43 @@ public final class FlowEditorApplication
         {
             return;
         }
-        properties.put(FRAME_BOUNDS_X, String.valueOf(frame.getX()));
-        properties.put(FRAME_BOUNDS_Y, String.valueOf(frame.getY()));
-        properties.put(FRAME_BOUNDS_W, String.valueOf(frame.getWidth()));
-        properties.put(FRAME_BOUNDS_H, String.valueOf(frame.getHeight()));
+        Rectangle bounds = frame.getBounds();
+        writeRectangle(properties, FRAME_BOUNDS, bounds);
+        
+        FlowEditorComponent flowEditorComponent = 
+            flowEditorApplicationPanel.getFlowEditorComponent();
+
+        Rectangle cBounds = flowEditorComponent.getExternalizedFrameBounds(
+            ModuleViewTypes.CONFIGURATION_VIEW);
+        if (cBounds != null)
+        {
+            writeRectangle(properties, CONFIGURATION_FRAME_BOUNDS, cBounds);
+        }
+        
+        Rectangle vBounds = flowEditorComponent.getExternalizedFrameBounds(
+            ModuleViewTypes.VISUALIZATION_VIEW);
+        if (vBounds != null)
+        {
+            writeRectangle(properties, VISUALIZATION_FRAME_BOUNDS, vBounds);
+        }
+        
     }
-    
+ 
+    /**
+     * Write a rectangle to the given properties, by appending 
+     * <code>x,y,width,height</code> to the given prefix string.
+     *  
+     * @param properties The properties
+     * @param prefix The prefix
+     * @param rectangle The rectangle
+     */
+    private void writeRectangle(
+        Properties properties, String prefix, Rectangle rectangle)
+    {
+        properties.put(prefix + "x", String.valueOf(rectangle.x));
+        properties.put(prefix + "y", String.valueOf(rectangle.y));
+        properties.put(prefix + "width", String.valueOf(rectangle.width));
+        properties.put(prefix + "height", String.valueOf(rectangle.height));
+    }
     
 }
