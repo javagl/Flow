@@ -26,6 +26,7 @@
  */
 package de.javagl.flow.gui;
 
+import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.util.LinkedHashMap;
@@ -36,6 +37,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import de.javagl.common.ui.closeable.CloseablePanel;
@@ -214,10 +216,12 @@ class ExternalizedComponentHandler
             
             JPanel container = new JPanel(new GridLayout(1,1));
             JComponent component = (JComponent) moduleView.getComponent();
-            CloseablePanel panel = new CloseablePanel(null, component, c -> 
+            JPanel p = new JPanel(new BorderLayout());
+            p.add(new JLabel(" "), BorderLayout.NORTH);
+            p.add(component, BorderLayout.CENTER);
+            CloseablePanel panel = new CloseablePanel(null, p, c -> 
             {
                 accordionPanel.removeFromAccordion(container);
-                accordionPanel.revalidate();
                 return true;
             });
             container.add(panel);
