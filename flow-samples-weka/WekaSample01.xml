@@ -3,37 +3,37 @@
         <modules>
             <moduleInstance id="module_Load_instances_0">
                 <module>
-                    <instantiationString>de.javagl.flow.ModuleCreatorInstantiator.instantiateByModuleCreatorClassName(de.javagl.flow.samples.weka.module.definitions.InstancesLoaderModuleCreator)</instantiationString>
+                    <instantiationString>de.javagl.flow.module.creation.ModuleCreatorInstantiator.instantiateByModuleCreatorClassName("de.javagl.flow.samples.weka.module.definitions.InstancesLoaderModuleCreator")</instantiationString>
                 </module>
             </moduleInstance>
             <moduleInstance id="module_Randomize_1">
                 <module>
-                    <instantiationString>de.javagl.flow.ModuleCreatorInstantiator.instantiateByModuleCreatorClassName(de.javagl.flow.samples.weka.module.definitions.RandomizeFilterModuleCreator)</instantiationString>
+                    <instantiationString>de.javagl.flow.module.creation.ModuleCreatorInstantiator.instantiateByModuleCreatorClassName("de.javagl.flow.samples.weka.module.definitions.RandomizeFilterModuleCreator")</instantiationString>
                 </module>
             </moduleInstance>
             <moduleInstance id="module_J48_2">
                 <module>
-                    <instantiationString>de.javagl.flow.ModuleCreatorInstantiator.instantiateByModuleCreatorClassName(de.javagl.flow.samples.weka.module.definitions.J48ClassifierModuleCreator)</instantiationString>
+                    <instantiationString>de.javagl.flow.module.creation.ModuleCreatorInstantiator.instantiateByModuleCreatorClassName("de.javagl.flow.samples.weka.module.definitions.J48ClassifierModuleCreator")</instantiationString>
                 </module>
             </moduleInstance>
             <moduleInstance id="module_Evaulation_3">
                 <module>
-                    <instantiationString>de.javagl.flow.ModuleCreatorInstantiator.instantiateByModuleCreatorClassName(de.javagl.flow.samples.weka.module.definitions.EvaluationModuleCreator)</instantiationString>
+                    <instantiationString>de.javagl.flow.module.creation.ModuleCreatorInstantiator.instantiateByModuleCreatorClassName("de.javagl.flow.samples.weka.module.definitions.EvaluationModuleCreator")</instantiationString>
                 </module>
             </moduleInstance>
             <moduleInstance id="module_Call_Evaluation_toMatrixString___4">
                 <module>
-                    <instantiationString>de.javagl.flow.ModuleCreatorInstantiator.instantiateByMethodString(public java.lang.String weka.classifiers.Evaluation.toMatrixString() throws java.lang.Exception, null)</instantiationString>
+                    <instantiationString>de.javagl.flow.module.creation.ModuleCreatorInstantiator.instantiateByMethodString("public java.lang.String weka.classifiers.Evaluation.toMatrixString() throws java.lang.Exception", "null")</instantiationString>
                 </module>
             </moduleInstance>
             <moduleInstance id="module_GUI_Console_5">
                 <module>
-                    <instantiationString>de.javagl.flow.ModuleCreatorInstantiator.instantiateByModuleCreatorClassName(de.javagl.flow.modules.basic.GuiConsoleModuleCreator)</instantiationString>
+                    <instantiationString>de.javagl.flow.module.creation.ModuleCreatorInstantiator.instantiateByModuleCreatorClassName("de.javagl.flow.modules.basic.GuiConsoleModuleCreator")</instantiationString>
                 </module>
             </moduleInstance>
             <moduleInstance id="module_Selectable_String_6">
                 <module>
-                    <instantiationString>de.javagl.flow.ModuleCreatorInstantiator.instantiateByModuleCreatorClassName(de.javagl.flow.modules.basic.selectable.string.SelectableStringModuleCreator)</instantiationString>
+                    <instantiationString>de.javagl.flow.module.creation.ModuleCreatorInstantiator.instantiateByModuleCreatorClassName("de.javagl.flow.modules.basic.selectable.string.SelectableStringModuleCreator")</instantiationString>
                     <configuration>
                         <java class="java.beans.XMLDecoder" version="1.8.0_45">
                             <object class="de.javagl.flow.modules.basic.selectable.string.StringBean">
