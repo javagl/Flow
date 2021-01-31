@@ -312,8 +312,16 @@ final class FlowEditorApplicationPanel extends JPanel
             flowEditorContext.getBuiltInModuleCreatorCategory();
         builtInModuleCreatorTree.setCategory(builtInModuleCreatorCategory);
         mainModuleCreatorTree.expandAll(1);
-        
-        
+    }
+    
+    /**
+     * Returns the {@link FlowEditorComponent}
+     * 
+     * @return The {@link FlowEditorComponent}
+     */
+    FlowEditorComponent getFlowEditorComponent()
+    {
+        return flowEditorComponent;
     }
 
     /**

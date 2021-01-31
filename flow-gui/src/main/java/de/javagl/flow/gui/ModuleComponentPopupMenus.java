@@ -26,13 +26,11 @@
  */
 package de.javagl.flow.gui;
 
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.util.Collections;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.JPopupMenu;
 
 import de.javagl.flow.gui.editor.FlowEditor;
 import de.javagl.flow.module.Module;
@@ -43,25 +41,6 @@ import de.javagl.flow.module.Module;
 class ModuleComponentPopupMenus
 {
     /**
-     * Creates and shows a popup menu for the given {@link ModuleComponent}
-     * 
-     * @param flowEditor The {@link FlowEditor} that will perform the actions
-     * @param moduleComponent The {@link ModuleComponent}
-     * @param location The location of the popup menu on the invoker
-     */
-    static void showMenuFor(
-        FlowEditor flowEditor,
-        ModuleComponent moduleComponent,
-        Point location)
-    {
-        JPopupMenu menu = new JPopupMenu();
-        Module module = moduleComponent.getModule();
-        menu.add(createDeleteModuleAction(flowEditor, module));
-        menu.show(moduleComponent, location.x, location.y);
-    }
-
-    
-    /**
      * Create an action to delete the given {@link Module} in the given
      * {@link FlowEditor}
      * 
@@ -69,7 +48,7 @@ class ModuleComponentPopupMenus
      * @param module The {@link Module}
      * @return The action
      */
-    private static Action createDeleteModuleAction(
+    static Action createDeleteModuleAction(
         FlowEditor flowEditor, Module module)
     {
         Action deleteModuleAction = new AbstractAction()

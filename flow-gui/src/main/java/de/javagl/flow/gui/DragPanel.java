@@ -33,16 +33,13 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.geom.Rectangle2D;
-import java.util.logging.Logger;
 
 import javax.swing.JPanel;
 
 import de.javagl.flow.module.Module;
 import de.javagl.flow.module.ModuleInfo;
-import de.javagl.flow.module.ModuleInfos;
 import de.javagl.flow.module.creation.ModuleCreator;
 import de.javagl.flow.module.view.ModuleView;
-import de.javagl.flow.module.view.ModuleViewTypes;
 import de.javagl.flow.repository.Repository;
 
 /**
@@ -52,12 +49,6 @@ import de.javagl.flow.repository.Repository;
  */
 final class DragPanel extends JPanel
 {
-    /**
-     * The logger used in this class
-     */
-    private static final Logger logger = 
-        Logger.getLogger(DragPanel.class.getName());
-    
     /**
      * Serial UID
      */
@@ -171,32 +162,11 @@ final class DragPanel extends JPanel
                     remove(currentDropPreviewComponent);
                 }
                 
-                // TODO: Avoid code duplication from 
-                // FlowEditorComponent#createModuleComponent
                 ModuleCreator moduleCreator = 
                     moduleCreatorRepository.get(module.getModuleInfo());
-
-                // TODO Currently, only the two default module view 
-                // types are supported here
-                ModuleView configurationView = null; 
-                ModuleView visualizationView = null;
-                if (moduleCreator == null)
-                {
-                    logger.severe("No ModuleCreator found in repository "
-                        + "for the following ModuleInfo:");
-                    logger.severe(ModuleInfos.createModuleInfoString(
-                        module.getModuleInfo()));
-                }
-                else
-                {
-                    configurationView = moduleCreator.createModuleView(
-                        ModuleViewTypes.CONFIGURATION_VIEW); 
-                    visualizationView = moduleCreator.createModuleView(
-                        ModuleViewTypes.VISUALIZATION_VIEW); 
-                }
-                    
                 ModuleComponent moduleComponent = 
-                    new ModuleComponent(configurationView, visualizationView);
+                    FlowEditorComponent.createModuleComponent(
+                        module, moduleCreator);
                 moduleComponent.setModule(module);
                 
                 Dimension size = moduleComponent.getPreferredSize();

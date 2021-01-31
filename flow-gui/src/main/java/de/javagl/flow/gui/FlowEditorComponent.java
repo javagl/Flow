@@ -63,6 +63,7 @@ import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -84,7 +85,7 @@ import de.javagl.flow.module.slot.InputSlot;
 import de.javagl.flow.module.slot.OutputSlot;
 import de.javagl.flow.module.slot.Slot;
 import de.javagl.flow.module.view.ModuleView;
-import de.javagl.flow.module.view.ModuleViewTypes;
+import de.javagl.flow.module.view.ModuleViewType;
 import de.javagl.flow.repository.Repository;
 import de.javagl.flow.workspace.FlowLayout;
 import de.javagl.flow.workspace.FlowLayoutEvent;
@@ -213,6 +214,11 @@ final class FlowEditorComponent extends JPanel implements ModuleComponentOwner
     private final FlowEditorControl flowEditorControl; 
     
     /**
+     * The {@link ExternalizedComponentHandler}
+     */
+    private final ExternalizedComponentHandler externalizedComponentHandler;
+    
+    /**
      * The key stroke for the 'delete' key
      */
     private final KeyStroke deleteKeyStroke = 
@@ -297,6 +303,7 @@ final class FlowEditorComponent extends JPanel implements ModuleComponentOwner
         @Override
         public void moduleAdded(FlowEvent flowEvent)
         {
+            //logger.info("moduleAdded " + flowEvent);
             ModuleComponent moduleComponent = createModuleComponent(
                 flowEvent.getModule());
             Dimension d = moduleComponent.getPreferredSize();
@@ -307,12 +314,14 @@ final class FlowEditorComponent extends JPanel implements ModuleComponentOwner
         @Override
         public void moduleRemoved(FlowEvent flowEvent)
         {
+            //logger.info("moduleRemoved " + flowEvent);
             removeModuleComponent(flowEvent.getModule());
         }
 
         @Override
         public void linkAdded(FlowEvent flowEvent)
         {
+            //logger.info("linkAdded " + flowEvent);
             linksPanel.setHighlightedLink(null);
             repaint();
         }
@@ -320,6 +329,7 @@ final class FlowEditorComponent extends JPanel implements ModuleComponentOwner
         @Override
         public void linkRemoved(FlowEvent flowEvent)
         {
+            //logger.info("linkRemoved " + flowEvent);
             linksPanel.setHighlightedLink(null);
             repaint();
         }
@@ -476,30 +486,80 @@ final class FlowEditorComponent extends JPanel implements ModuleComponentOwner
         // functions in the FlowEditor, causing UndoableEdit
         // instances to be created
         flowEditorControl = 
-            new FlowEditorControl(this);
+            new FlowEditorControl(this, this::handleModuleComponentPopupMenu);
         desktopPane.addMouseListener(flowEditorControl);
         desktopPane.addMouseMotionListener(flowEditorControl);
 
+        externalizedComponentHandler = 
+            new ExternalizedComponentHandler(moduleCreatorRepository);
+        
         getInputMap(JComponent.WHEN_FOCUSED).put(
             deleteKeyStroke, "deleteSelected");
         getActionMap().put("deleteSelected", deleteSelectedAction);
         
-//        KeyboardFocusManager.getCurrentKeyboardFocusManager().addPropertyChangeListener(new PropertyChangeListener()
-//        {
-//            @Override
-//            public void propertyChange(PropertyChangeEvent evt)
-//            {
-//                if (evt.getPropertyName().equals("focusOwner"))
-//                {
-//                    System.out.println("Old : "+evt.getOldValue());
-//                    System.out.println("New : "+evt.getNewValue());
-//                }
-//            }
-//        });
-        
         add(desktopPane);
     }
     
+    /**
+     * Will be called when the title bar of the given {@link ModuleComponent}
+     * was right-clicked, and a popup menu should be shown
+     * 
+     * @param moduleComponent The {@link ModuleComponent}
+     * @param location The location of the click inside the component
+     */
+    private void handleModuleComponentPopupMenu(
+        ModuleComponent moduleComponent, Point location)
+    {
+        JPopupMenu menu = new JPopupMenu();
+        Module module = moduleComponent.getModule();
+        menu.add(externalizedComponentHandler
+            .createExternalizeAction(moduleComponent));
+        menu.addSeparator();
+        menu.add(ModuleComponentPopupMenus.createDeleteModuleAction(
+            flowEditor, module));
+        menu.show(moduleComponent, location.x, location.y);
+    }
+    
+    /**
+     * Set whether the externalized frame for the given {@link ModuleViewType}
+     * should be visible
+     * 
+     * @param moduleViewType The {@link ModuleViewType} 
+     * @param visible The state
+     */
+    void setExternalizedFrameVisible(
+        ModuleViewType moduleViewType, boolean visible)
+    {
+        externalizedComponentHandler.setExternalizedFrameVisible(
+            moduleViewType, visible);
+    }
+    
+    /**
+     * Set the bounds of the externalized frame for the given 
+     * {@link ModuleViewType}
+     * 
+     * @param moduleViewType The {@link ModuleViewType} 
+     * @param bounds The bounds
+     */
+    void setExternalizedFrameBounds(
+        ModuleViewType moduleViewType, Rectangle bounds)
+    {
+        externalizedComponentHandler.setExternalizedFrameBounds(
+            moduleViewType, bounds);
+    }
+    
+    /**
+     * Return the bounds of the externalized frame for the given 
+     * {@link ModuleViewType}
+     * 
+     * @param moduleViewType The {@link ModuleViewType} 
+     * @return The bounds 
+     */
+    Rectangle getExternalizedFrameBounds(ModuleViewType moduleViewType)
+    {
+        return externalizedComponentHandler.getExternalizedFrameBounds(
+            moduleViewType);
+    }
     
     
     /**
@@ -814,6 +874,7 @@ final class FlowEditorComponent extends JPanel implements ModuleComponentOwner
         }
         this.flowEditor = newFlowEditor;
         flowEditorControl.setFlowEditor(flowEditor);
+        externalizedComponentHandler.setFlowEditor(flowEditor);
         linksPanel.setFlowWorkspace(flowEditor.getFlowWorkspace());
         if (flowEditor != null)
         {
@@ -905,11 +966,33 @@ final class FlowEditorComponent extends JPanel implements ModuleComponentOwner
     {
         ModuleCreator moduleCreator = 
             moduleCreatorRepository.get(module.getModuleInfo());
-
-        // TODO Currently, only the two default module view types 
-        // are supported here
-        ModuleView configurationView = null; 
-        ModuleView visualizationView = null;
+        
+        ModuleComponent moduleComponent = 
+            createModuleComponent(module, moduleCreator); 
+        moduleComponent.setModule(module);
+        
+        Dimension size = moduleComponent.getPreferredSize();
+        moduleComponent.setSize(size);
+        return moduleComponent;
+    }
+    
+    
+    /**
+     * Create the {@link ModuleComponent} for the given {@link Module},
+     * using the given {@link ModuleCreator}. If the given 
+     * {@link ModuleCreator} is <code>null</code>, then an error
+     * message will be printed and a possibly incomplete 
+     * {@link ModuleComponent} will be returned.
+     * 
+     * @param module The {@link Module}
+     * @param moduleCreator The {@link ModuleCreator}
+     * @return The {@link ModuleComponent}
+     */
+    static ModuleComponent createModuleComponent(
+        Module module, ModuleCreator moduleCreator)
+    {
+        Map<ModuleViewType, ModuleView> moduleViews = 
+            new LinkedHashMap<ModuleViewType, ModuleView>();
         if (moduleCreator == null)
         {
             logger.severe("No ModuleCreator found in repository "
@@ -919,17 +1002,20 @@ final class FlowEditorComponent extends JPanel implements ModuleComponentOwner
         }
         else
         {
-            configurationView = moduleCreator.createModuleView(
-                ModuleViewTypes.CONFIGURATION_VIEW); 
-            visualizationView = moduleCreator.createModuleView(
-                ModuleViewTypes.VISUALIZATION_VIEW); 
+            List<ModuleViewType> moduleViewTypes = 
+                moduleCreator.getSupportedModuleViewTypes();
+            for (ModuleViewType moduleViewType : moduleViewTypes)
+            {
+                ModuleView moduleView = 
+                    moduleCreator.createModuleView(moduleViewType);
+                if (moduleView != null)
+                {
+                    moduleViews.put(moduleViewType, moduleView);
+                }
+            }
         }
-        
         ModuleComponent moduleComponent = 
-            new ModuleComponent(configurationView, visualizationView);
-        moduleComponent.setModule(module);
-        Dimension size = moduleComponent.getPreferredSize();
-        moduleComponent.setSize(size);
+            new ModuleComponent(moduleViews);
         return moduleComponent;
     }
     

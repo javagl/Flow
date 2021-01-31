@@ -59,7 +59,7 @@ class DefaultFlowExecutor extends AbstractFlowExecutor implements FlowExecutor
     /**
      * The log level for execution process messages
      */
-    private static final Level level = Level.INFO;
+    private static final Level level = Level.FINE;
     
     /**
      * The executor service for the current call to {@link #execute(Flow)}
@@ -122,7 +122,7 @@ class DefaultFlowExecutor extends AbstractFlowExecutor implements FlowExecutor
         }
         else 
         {
-            logger.warning("Executing flow DONE");
+            logger.log(level, "Executing flow DONE");
         }
         fireAfterExecution(flow, cancelled, errors);
     }
